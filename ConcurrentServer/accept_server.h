@@ -15,6 +15,7 @@ typedef struct _ACCEPT_SERVER {
 typedef struct _CONNECTION {
 	SOCKET s;
 	SOCKADDR_IN addr;
+	LPCSTR sName;
 } CONNECTION, *LPCONNECTION;
 
 DWORD WINAPI AcceptServer(LPVOID lpParam);

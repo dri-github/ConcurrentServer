@@ -1,5 +1,6 @@
 #include "./forward_list.h"
 #include "./accept_server.h"
+#include "./dispatch_server.h"
 
 #include <Windows.h>
 #include <WinSock2.h>
@@ -10,12 +11,10 @@
 HANDLE hAcceptServer;
 HANDLE hDispatchServer;
 
-DWORD WINAPI DispatchServer(LPVOID pPrm) {
-	return 0;
-}
-
 int main(int argc, char* argv[]) {
 	LPFORWARD_LIST_NODE connections = ForwardListCreateNode(NULL);
+
+	HANDLE hAddConnection = CreateEvent(NULL, FALSE, FALSE, "AddConnection");
 
 	SOCKADDR_IN addr;
 	addr.sin_family = AF_INET;
@@ -35,6 +34,8 @@ int main(int argc, char* argv[]) {
 	CloseHandle(hDispatchServer);
 	WaitForSingleObject(hAcceptServer, INFINITE);
 	CloseHandle(hAcceptServer);
+
+	CloseHandle(hAddConnection);
 	
 	return 0;
 }
