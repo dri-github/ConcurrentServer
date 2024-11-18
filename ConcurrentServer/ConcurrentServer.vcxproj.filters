@@ -21,12 +21,18 @@
     <ClCompile Include="forward_list.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="accept_server.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="forward_list.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="dispath_server.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="accept_server.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

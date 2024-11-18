@@ -127,10 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="accept_server.c" />
     <ClCompile Include="forward_list.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="accept_server.h" />
     <ClInclude Include="dispath_server.h" />
     <ClInclude Include="forward_list.h" />
   </ItemGroup>
