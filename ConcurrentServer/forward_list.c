@@ -11,32 +11,24 @@ LPFORWARD_LIST_NODE ForwardListCreateNode(LPVOID data) {
     return lpNode;
 }
 
-BOOL ForwardListPushFront(LPFORWARD_LIST_NODE* lppHead, LPVOID data) {
-    if (lppHead == NULL) {
-        return FALSE;
-    }
+BOOL ForwardListPushFront(LPFORWARD_LIST_NODE lpHead, LPVOID data) {
     LPFORWARD_LIST_NODE lpNode = ForwardListCreateNode(data);
-    if (lpNode == NULL) {
+    if (lpHead == NULL || lpNode == NULL) {
         return FALSE;
     }
-    lpNode->Next = *lppHead;
-    *lppHead = lpNode;
+
+    lpNode->Next = lpHead->Next;
+    lpHead->Next = lpNode;
     return TRUE;
 }
 
-BOOL ForwardListPushBack(LPFORWARD_LIST_NODE* lppHead, LPVOID data) {
-    if (lppHead == NULL) {
-        return FALSE;
-    }
+BOOL ForwardListPushBack(LPFORWARD_LIST_NODE lpHead, LPVOID data) {
     LPFORWARD_LIST_NODE lpNode = ForwardListCreateNode(data);
-    if (lpNode == NULL) {
+    if (lpHead == NULL || lpNode == NULL) {
         return FALSE;
     }
-    if (*lppHead == NULL) {
-        *lppHead = lpNode;
-        return TRUE;
-    }
-    LPFORWARD_LIST_NODE lpCurrent = *lppHead;
+
+    LPFORWARD_LIST_NODE lpCurrent = lpHead;
     while (lpCurrent->Next != NULL) {
         lpCurrent = lpCurrent->Next;
     }
@@ -44,19 +36,13 @@ BOOL ForwardListPushBack(LPFORWARD_LIST_NODE* lppHead, LPVOID data) {
     return TRUE;
 }
 
-BOOL ForwardListDeleteNode(LPFORWARD_LIST_NODE* lppHead, LPVOID key, BOOL(*compare)(LPVOID, LPVOID)) {
-    if (lppHead == NULL || *lppHead == NULL) {
+BOOL ForwardListDeleteNode(LPFORWARD_LIST_NODE lpHead, LPVOID key, BOOL(*compare)(LPVOID, LPVOID), VOID(*freeData)(LPVOID)) {
+    if (lpHead == NULL) {
         return FALSE;
     }
-    LPFORWARD_LIST_NODE lpCurrent = *lppHead;
+
+    LPFORWARD_LIST_NODE lpCurrent = lpHead->Next;
     LPFORWARD_LIST_NODE lpPrev = NULL;
-
-    if (compare(lpCurrent->Data, key)) {
-        *lppHead = lpCurrent->Next;
-        HeapFree(GetProcessHeap(), 0, lpCurrent);
-        return TRUE;
-    }
-
     while (lpCurrent != NULL && !compare(lpCurrent->Data, key)) {
         lpPrev = lpCurrent;
         lpCurrent = lpCurrent->Next;
@@ -67,6 +53,9 @@ BOOL ForwardListDeleteNode(LPFORWARD_LIST_NODE* lppHead, LPVOID key, BOOL(*compa
     }
 
     lpPrev->Next = lpCurrent->Next;
+    if (freeData != NULL) {
+        freeData(lpCurrent->Data);
+    }
     HeapFree(GetProcessHeap(), 0, lpCurrent);
     return TRUE;
 }

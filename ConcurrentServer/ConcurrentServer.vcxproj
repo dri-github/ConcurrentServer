@@ -134,8 +134,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="accept_server.h" />
-    <ClInclude Include="dispatch_server.h" />
-    <ClInclude Include="dispath_server.h" />
     <ClInclude Include="forward_list.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

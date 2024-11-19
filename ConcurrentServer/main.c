@@ -12,6 +12,9 @@ HANDLE hAcceptServer;
 HANDLE hDispatchServer;
 
 int main(int argc, char* argv[]) {
+	CRITICAL_SECTION cs;
+	InitializeCriticalSection(&cs);
+
 	LPFORWARD_LIST_NODE connections = ForwardListCreateNode(NULL);
 
 	HANDLE hAddConnection = CreateEvent(NULL, FALSE, FALSE, "AddConnection");
@@ -27,8 +30,6 @@ int main(int argc, char* argv[]) {
 
 	hAcceptServer = CreateThread(NULL, NULL, AcceptServer, &asConfig, NULL, NULL);
 	hDispatchServer = CreateThread(NULL, NULL, DispatchServer, connections, NULL, NULL);
-
-	
 
 	WaitForSingleObject(hDispatchServer, INFINITE);
 	CloseHandle(hDispatchServer);

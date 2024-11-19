@@ -4,10 +4,10 @@
 
 DWORD WINAPI DispatchServer(LPVOID lpParam) {
 	LPDISPATCH_SERVER server = lpParam;
-	LPFORWARD_LIST_NODE connections = server->connectios;
+	LPFORWARD_LIST_NODE connections = server->connections;
 	HANDLE hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, "AddConnection");
 
-	LPFORWARD_LIST_NODE libList = NULL;
+	LPFORWARD_LIST_NODE libList = ForwardListCreateNode(NULL);
 
 	while (TRUE) {
 		DWORD dwWaitResult;
