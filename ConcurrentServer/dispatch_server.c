@@ -23,9 +23,10 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 		LPFORWARD_LIST_NODE itPrev = it;
 		while ((it = it->Next) != NULL) {
 			LPCONNECTION connection = it->Data;
-			printf("[DispatchServer] Status: Changing service for %i\n", ntohs(connection->addr.sin_port));
-
 			if (connection->state == 0) {
+				connection->state = 1;
+				printf("[DispatchServer] Status: Changing service for %i\n", ntohs(connection->addr.sin_port));
+
 				LPSTR buffer[MAX_SIZE_SERVICE_NAME + 1];
 				memset(buffer, 0, sizeof(buffer));
 				INT lenght = 0;
@@ -53,7 +54,8 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 				
 				LPSERVICE_FUNCTION lpFunction = (LPSERVICE_FUNCTION)GetProcAddress(hService, SERVICE_FUNCTION_NAME);
 				if (lpFunction != NULL) {
-					CreateThread(NULL, NULL, lpFunction, NULL, NULL, NULL);
+					printf("[DispatchServer] Status: The connection %i select service \"%s\"\n", ntohs(connection->addr.sin_port), sName);
+					CreateThread(NULL, NULL, lpFunction, connection, NULL, NULL);
 				}
 			}
 
@@ -80,7 +82,7 @@ HANDLE AddServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name) {
 	}
 
 	ForwardListPushFront(lpLibList, lpLib);
-	return lpLib;
+	return lpLib->handle;
 }
 
 HANDLE FindServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name) {

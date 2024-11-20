@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConcurrentServer", "ConcurrentServer\ConcurrentServer.vcxproj", "{71503590-396F-479C-BCC3-66A3EEF51BC7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "echo", "echo\echo.vcxproj", "{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{71503590-396F-479C-BCC3-66A3EEF51BC7}.Release|x64.Build.0 = Release|x64
 		{71503590-396F-479C-BCC3-66A3EEF51BC7}.Release|x86.ActiveCfg = Release|Win32
 		{71503590-396F-479C-BCC3-66A3EEF51BC7}.Release|x86.Build.0 = Release|Win32
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Debug|x64.ActiveCfg = Debug|x64
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Debug|x64.Build.0 = Debug|x64
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Debug|x86.ActiveCfg = Debug|Win32
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Debug|x86.Build.0 = Debug|Win32
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Release|x64.ActiveCfg = Release|x64
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Release|x64.Build.0 = Release|x64
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Release|x86.ActiveCfg = Release|Win32
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
