@@ -56,7 +56,7 @@ BOOL ForwardListDeleteNode(LPFORWARD_LIST_NODE lpHead, LPVOID key, BOOL(*compare
     if (freeData != NULL) {
         freeData(lpCurrent->Data);
     }
-    HeapFree(GetProcessHeap(), 0, lpCurrent);
+    free(lpCurrent);
     return TRUE;
 }
 

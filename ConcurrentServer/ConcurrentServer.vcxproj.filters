@@ -32,10 +32,13 @@
     <ClInclude Include="forward_list.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="accept_server.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
     <ClInclude Include="dispatch_server.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="accept_server.h">
+    <ClInclude Include="main.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

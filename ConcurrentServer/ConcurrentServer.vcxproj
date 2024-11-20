@@ -134,7 +134,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="accept_server.h" />
+    <ClInclude Include="dispatch_server.h" />
     <ClInclude Include="forward_list.h" />
+    <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

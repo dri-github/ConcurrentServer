@@ -15,13 +15,28 @@ DWORD WINAPI AcceptServer(LPVOID lpParam) {
 	if (ChangeConnectionsCount(server, SOMAXCONN))
 		return -1;
 
+	HANDLE hAddConnection;
+	if ((hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, "AddConnection")) == NULL) {
+		return -1;
+	}
+
 	while (TRUE) {
-		LPCONNECTION lpConnection = CreateConnection(server);
-		if (lpConnection == NULL) {
-			return -1;
+		printf("[AcceptServer] Status: Wait Connection\n");
+		LPCONNECTION lpConnection;
+		if ((lpConnection = CreateConnection(server)) == NULL) {
+			printf("[AcceptServer] Error: CreateConnection\n");
+			continue;
 		}
 
-		ForwardListPushBack(server->connections, lpConnection);
+		lpConnection->state = 0;
+
+		EnterCriticalSection(server->cs);
+		if (ForwardListPushFront(server->connections, lpConnection)) {
+			printf("[AcceptServer] Status: Connected %s:%i\n", inet_ntoa(lpConnection->addr.sin_addr), ntohs(lpConnection->addr.sin_port));
+		}
+		LeaveCriticalSection(server->cs);
+
+		SetEvent(hAddConnection);
 	}
 
 	if (closesocket(server->s) == SOCKET_ERROR)
@@ -38,7 +53,10 @@ BOOL ChangeConnectionsCount(LPACCEPT_SERVER lpServer, INT count) {
 }
 
 LPCONNECTION CreateConnection(LPACCEPT_SERVER lpServer) {
-	LPCONNECTION lpConnection = (LPCONNECTION)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(CONNECTION));
+	LPCONNECTION lpConnection;
+	if ((lpConnection = (LPCONNECTION)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(CONNECTION))) == NULL) {
+		return NULL;
+	}
 
 	INT lc = sizeof(lpConnection->addr);
 	if ((lpConnection->s = accept(lpServer->s, (SOCKADDR*)&lpConnection->addr, &lc)) == INVALID_SOCKET) {
