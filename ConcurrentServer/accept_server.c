@@ -16,7 +16,7 @@ DWORD WINAPI AcceptServer(LPVOID lpParam) {
 		return -1;
 
 	HANDLE hAddConnection;
-	if ((hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, "AddConnection")) == NULL) {
+	if ((hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) == NULL) {
 		return -1;
 	}
 
@@ -28,7 +28,7 @@ DWORD WINAPI AcceptServer(LPVOID lpParam) {
 			continue;
 		}
 
-		lpConnection->state = 0;
+		lpConnection->state = CONNECTION_STATE_ACCEPTED;
 
 		EnterCriticalSection(server->cs);
 		if (ForwardListPushFront(server->connections, lpConnection)) {

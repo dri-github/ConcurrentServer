@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
 	lpConnections = ForwardListCreateNode(NULL);
 
-	if ((hAddConnection = CreateEventA(NULL, FALSE, FALSE, "AddConnection")) == NULL) {
+	if ((hAddConnection = CreateEventA(NULL, FALSE, FALSE, DISPATCH_SERVER_EVENT_NAME)) == NULL) {
 		return -1;
 	}
 

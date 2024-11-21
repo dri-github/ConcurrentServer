@@ -34,6 +34,7 @@ extern "C"
         } while (recv(lpConnection->s, text, strlen(text) + 1, NULL) != SOCKET_ERROR);
         HeapFree(GetProcessHeap(), 0, text);
         
-        closesocket(lpConnection->s);
+        lpConnection->state = CONNECTION_STATE_DROPED;
+        SetEvent(OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME));
     }
 }

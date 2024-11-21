@@ -7,7 +7,7 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 	LPFORWARD_LIST_NODE connections = server->connections;
 
 	HANDLE hAddConnection;
-	if ((hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, "AddConnection")) == NULL) {
+	if ((hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) == NULL) {
 		return -1;
 	}
 
@@ -23,40 +23,55 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 		LPFORWARD_LIST_NODE itPrev = it;
 		while ((it = it->Next) != NULL) {
 			LPCONNECTION connection = it->Data;
-			if (connection->state == 0) {
-				connection->state = 1;
-				printf("[DispatchServer] Status: Changing service for %i\n", ntohs(connection->addr.sin_port));
+			switch (connection->state) {
+			case CONNECTION_STATE_ACCEPTED: {
+					connection->state = CONNECTION_STATE_SUCCESS;
+					printf("[DispatchServer] Status: Changing service for %i\n", ntohs(connection->addr.sin_port));
 
-				LPSTR buffer[MAX_SIZE_SERVICE_NAME + 1];
-				memset(buffer, 0, sizeof(buffer));
-				INT lenght = 0;
+					LPSTR buffer[MAX_SIZE_SERVICE_NAME + 1];
+					memset(buffer, 0, sizeof(buffer));
+					INT lenght = 0;
 
-				if ((lenght = recv(connection->s, buffer, sizeof(buffer), NULL)) == SOCKET_ERROR) {
-					printf("[DispatchServer] Error: recv");
+					if ((lenght = recv(connection->s, buffer, sizeof(buffer), NULL)) == SOCKET_ERROR) {
+						printf("[DispatchServer] Error: recv");
+						break;
+					}
+
+					LPSTR sName;
+					if ((sName = (LPSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, lenght + strlen(SERVICE_NAME_POSTFIX) + 1)) == NULL) {
+						continue;
+					}
+					strcpy(sName, buffer);
+					strcpy(sName + lenght, SERVICE_NAME_POSTFIX);
+
+					HANDLE hService = FindAndLoadServiceLib(libList, sName);
+					if (hService == NULL) {
+						printf("[DispatchServer] Warning: Service name \"%s\" not exist\n", sName);
+						printf("[DispatchServer] Status: Drop connection for %i\n", ntohs(connection->addr.sin_port));
+						closesocket(connection->s);
+						connection->state = 1;
+						continue;
+					}
+
+					LPSERVICE_FUNCTION lpFunction = (LPSERVICE_FUNCTION)GetProcAddress(hService, SERVICE_FUNCTION_NAME);
+					if (lpFunction != NULL) {
+						printf("[DispatchServer] Status: The connection %i select service \"%s\"\n", ntohs(connection->addr.sin_port), sName);
+						CreateThread(NULL, NULL, lpFunction, connection, NULL, NULL);
+					}
 					break;
 				}
+			case CONNECTION_STATE_DROPED:
+				printf("[DispatchServer] Status: Droped connection %i\n", ntohs(connection->addr.sin_port));
 
-				LPSTR sName;
-				if ((sName = (LPSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, lenght + strlen(SERVICE_NAME_POSTFIX) + 1)) == NULL) {
-					continue;
-				}
-				strcpy(sName, buffer);
-				strcpy(sName + lenght, SERVICE_NAME_POSTFIX);
-				
-				HANDLE hService = FindAndLoadServiceLib(libList, sName);
-				if (hService == NULL) {
-					printf("[DispatchServer] Warning: Service name \"%s\" not exist\n", sName);
-					printf("[DispatchServer] Status: Drop connection for %i\n", ntohs(connection->addr.sin_port));
-					closesocket(connection->s);
-					connection->state = 1;
-					continue;
-				}
-				
-				LPSERVICE_FUNCTION lpFunction = (LPSERVICE_FUNCTION)GetProcAddress(hService, SERVICE_FUNCTION_NAME);
-				if (lpFunction != NULL) {
-					printf("[DispatchServer] Status: The connection %i select service \"%s\"\n", ntohs(connection->addr.sin_port), sName);
-					CreateThread(NULL, NULL, lpFunction, connection, NULL, NULL);
-				}
+				// Need added delete lib function
+				closesocket(connection->s);
+				itPrev->Next = it->Next;
+				HeapFree(GetProcessHeap(), 0, it->Data);
+				HeapFree(GetProcessHeap(), 0, it);
+				it = itPrev;
+				break;
+			default:
+				break;
 			}
 
 			itPrev = it;
