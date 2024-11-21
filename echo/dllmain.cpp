@@ -26,15 +26,22 @@ extern "C"
     __declspec(dllexport) void Service(LPVOID lpParam)
     {
         LPCONNECTION lpConnection = (LPCONNECTION)lpParam;
-        LPSTR text = (LPSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(CHAR) * 30);
-        strcpy(text, "Hello From Client 10");
-        do {
-            Sleep(100);
-            send(lpConnection->s, text, strlen(text) + 1, NULL);
-        } while (recv(lpConnection->s, text, strlen(text) + 1, NULL) != SOCKET_ERROR);
-        HeapFree(GetProcessHeap(), 0, text);
+
+        printf("[EchoService] Status: Start\n");
+        CHAR text[64];
+        memset(text, 0, sizeof(text));
+        while (recv(lpConnection->s, text, sizeof(text), NULL) != SOCKET_ERROR) {
+            printf("[EchoService] Status: Reply \"%s\"\n", text);
+            if (strcmp(text, "") == 0)
+                break;
+            if (send(lpConnection->s, text, strlen(text) + 1, NULL) == SOCKET_ERROR)
+                break;
+        }
         
         lpConnection->state = CONNECTION_STATE_DROPED;
-        SetEvent(OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME));
+        HANDLE hEvent;
+        if ((hEvent = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) != NULL) {
+            SetEvent(hEvent);
+        }
     }
 }

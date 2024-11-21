@@ -46,8 +46,10 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 
 					HANDLE hService = FindAndLoadServiceLib(libList, sName);
 					if (hService == NULL) {
+						CHAR error[] = "[DispatchServer] Warning: Service name not exist\n";
 						printf("[DispatchServer] Warning: Service name \"%s\" not exist\n", sName);
 						printf("[DispatchServer] Status: Drop connection for %i\n", ntohs(connection->addr.sin_port));
+						send(connection->s, error, strlen(error) + 1, NULL);
 						closesocket(connection->s);
 						connection->state = 1;
 						continue;
@@ -55,6 +57,7 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 
 					LPSERVICE_FUNCTION lpFunction = (LPSERVICE_FUNCTION)GetProcAddress(hService, SERVICE_FUNCTION_NAME);
 					if (lpFunction != NULL) {
+						send(connection->s, buffer, sizeof(buffer), NULL);
 						printf("[DispatchServer] Status: The connection %i select service \"%s\"\n", ntohs(connection->addr.sin_port), sName);
 						CreateThread(NULL, NULL, lpFunction, connection, NULL, NULL);
 					}

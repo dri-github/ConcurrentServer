@@ -7,6 +7,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConcurrentServer", "Concurr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "echo", "echo\echo.vcxproj", "{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{C757789D-8090-4979-9571-22C13B1B61CC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "AdminConsolePipe\AdminConsolePipe.vcxproj", "{2E982844-7AEF-459E-9AEF-3A6570EA73C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,9 +35,20 @@ Global
 		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Release|x64.Build.0 = Release|x64
 		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Release|x86.ActiveCfg = Release|Win32
 		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8}.Release|x86.Build.0 = Release|Win32
+		{2E982844-7AEF-459E-9AEF-3A6570EA73C5}.Debug|x64.ActiveCfg = Debug|x64
+		{2E982844-7AEF-459E-9AEF-3A6570EA73C5}.Debug|x64.Build.0 = Debug|x64
+		{2E982844-7AEF-459E-9AEF-3A6570EA73C5}.Debug|x86.ActiveCfg = Debug|Win32
+		{2E982844-7AEF-459E-9AEF-3A6570EA73C5}.Debug|x86.Build.0 = Debug|Win32
+		{2E982844-7AEF-459E-9AEF-3A6570EA73C5}.Release|x64.ActiveCfg = Release|x64
+		{2E982844-7AEF-459E-9AEF-3A6570EA73C5}.Release|x64.Build.0 = Release|x64
+		{2E982844-7AEF-459E-9AEF-3A6570EA73C5}.Release|x86.ActiveCfg = Release|Win32
+		{2E982844-7AEF-459E-9AEF-3A6570EA73C5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8} = {C757789D-8090-4979-9571-22C13B1B61CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B1391385-8483-4FBA-9A13-65EDA3BA3D02}
