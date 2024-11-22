@@ -18,27 +18,30 @@
     <ClCompile Include="main.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="forward_list.c">
+    <ClCompile Include="Base\forward_list.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="accept_server.c">
+    <ClCompile Include="Servers\accept_server.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="dispatch_server.c">
+    <ClCompile Include="Servers\dispatch_server.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="forward_list.h">
+    <ClInclude Include="Base\forward_list.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="accept_server.h">
+    <ClInclude Include="Servers\accept_server.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="dispatch_server.h">
+    <ClInclude Include="Servers\dispatch_server.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="connection.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <WinSock2.h>
 #include <Windows.h>
 #include <stdio.h>
 

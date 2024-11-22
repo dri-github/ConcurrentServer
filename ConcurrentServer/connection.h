@@ -1,0 +1,17 @@
+#ifndef CONNECTION_H
+#define CONNECTION_H
+
+#include <Windows.h>
+
+#define CONNECTION_STATE_ACCEPTED 0
+#define CONNECTION_STATE_SUCCESS 1
+#define CONNECTION_STATE_DROPED 2
+#define CONNECTION_STATE_ERROR 3
+
+typedef struct _CONNECTION {
+	SOCKET s;
+	SOCKADDR_IN addr;
+	DWORD state;
+} CONNECTION, * LPCONNECTION;
+
+#endif // !CONNECTION_H

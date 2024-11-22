@@ -1,8 +1,8 @@
 #include "./main.h"
 
-#include "./forward_list.h"
-#include "./accept_server.h"
-#include "./dispatch_server.h"
+#include "./Base/forward_list.h"
+#include "./Servers/accept_server.h"
+#include "./Servers/dispatch_server.h"
 
 #define MESSAGE_SIZE 50
 #define SERVER_NAME_SIZE 15

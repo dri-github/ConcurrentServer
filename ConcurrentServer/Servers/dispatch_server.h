@@ -1,11 +1,9 @@
 #ifndef DISPATCH_SERVER_H
 #define DISPATCH_SERVER_H
 
-#include "./main.h"
+#include "../Base/forward_list.h"
 
-#include "./forward_list.h"
-
-#define STRLEN(x) (sizeof(x) / sizeof(x[0]) - sizeof(x[0]))
+#include <Windows.h>
 
 #define MAX_SIZE_SERVICE_NAME 16
 #define SERVICE_NAME_POSTFIX ".dll"
@@ -22,6 +20,7 @@ typedef struct _LOADED_LIB {
 typedef struct _DISPATCH_SERVER {
 	LPFORWARD_LIST_NODE connections;
 	LPCRITICAL_SECTION cs;
+	LPCSTR postfix;
 } DISPATCH_SERVER, *LPDISPATCH_SERVER;
 
 DWORD WINAPI DispatchServer(LPVOID lpParam);

@@ -127,15 +127,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="accept_server.c" />
-    <ClCompile Include="dispatch_server.c" />
-    <ClCompile Include="forward_list.c" />
+    <ClCompile Include="Servers\accept_server.c" />
+    <ClCompile Include="Servers\dispatch_server.c" />
+    <ClCompile Include="Base\forward_list.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="accept_server.h" />
-    <ClInclude Include="dispatch_server.h" />
-    <ClInclude Include="forward_list.h" />
+    <ClInclude Include="connection.h" />
+    <ClInclude Include="Servers\accept_server.h" />
+    <ClInclude Include="Servers\dispatch_server.h" />
+    <ClInclude Include="Base\forward_list.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
