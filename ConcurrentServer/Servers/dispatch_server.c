@@ -145,13 +145,12 @@ VOID DeleteServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name) {
 		if (!strcmp(lib->name, name)) {
 			if ((--lib->refCount) == 0) {
 				FreeLibrary(lib->handle);
+				printf("[DispatchServer] Status: Unloaded lib \"%s\"\n", name);
 				HeapFree(GetProcessHeap(), 0, lib->name);
 
 				itPrev->Next = it->Next;
 				HeapFree(GetProcessHeap(), 0, lib);
 				HeapFree(GetProcessHeap(), 0, it);
-
-				printf("[DispatchServer] Status: Unloaded lib \"%s\"\n", name);
 				it = itPrev;
 			}
 			return;

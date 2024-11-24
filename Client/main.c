@@ -53,22 +53,28 @@ int main(int argc, char* argv[]) {
 		recv(s, serviceNameRecv, sizeof(serviceNameRecv), NULL);
 		CHAR message[100] = "Start";
 
+		getchar();
 		do {
 			if (!strcmp(message, "\0"))
 				break;
 
 			printf("Message: %s\n", message);
-			memset(message, 0, sizeof(message));
+			//memset(message, 0, sizeof(message));
 			printf("\n");
 			printf("Send: ");
-			//gets(message);
-			scanf("%s", message);
-			if (!strcmp(message, "\\0"))
-				strcpy(message, "");
-			message[63] = '\0';
+			fgets(message, sizeof(message), stdin);
+
+			for (char* it = message - 1; (*it) != '\0'; it++) {
+				if ((*it) == '\n') {
+					(*it) = '\0';
+					break;
+				}
+			}
 
 			if (send(s, message, strlen(message) + 1, NULL) == SOCKET_ERROR)
 				break;
+
+			memset(message, 0, sizeof(message));
 		} while (recv(s, message, sizeof(message), NULL) != SOCKET_ERROR);
 
 		printf("Close connection\n");
