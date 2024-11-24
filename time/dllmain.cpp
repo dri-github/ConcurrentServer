@@ -20,6 +20,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 #include <WinSock2.h>
 #include <Windows.h>
 #include <stdio.h>
+#include <ctime>
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma warning(disable: 4996)
@@ -34,17 +35,25 @@ extern "C"
     {
         LPCONNECTION lpConnection = (LPCONNECTION)lpParam;
 
-        printf("[EchoService] Status: Start\n");
+        printf("[TimeService] Status: Start\n");
         CHAR text[64];
         memset(text, 0, sizeof(text));
         while (recv(lpConnection->s, text, sizeof(text), NULL) != SOCKET_ERROR) {
-            printf("[EchoService] Status: Reply \"%s\"\n", text);
-            if (strcmp(text, "") == 0)
+            if (strcmp(text, "time")) {
                 break;
+            }
+            
+            time_t rawtime;
+            struct tm* timeinfo;
+
+            time(&rawtime);
+            timeinfo = localtime(&rawtime);
+            strftime(text, sizeof(text), "%d.%m.%y/%H:%M:%S", timeinfo);
+
             if (send(lpConnection->s, text, strlen(text) + 1, NULL) == SOCKET_ERROR)
                 break;
         }
-        
+
         lpConnection->state = CONNECTION_STATE_DROPED;
         HANDLE hEvent;
         if ((hEvent = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) != NULL) {
