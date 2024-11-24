@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "time", "time\time.vcxproj", "{C052208B-D2DC-4CA3-B679-B12F2B025B1F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rand", "rand\rand.vcxproj", "{4224D9D4-074A-4681-BD03-E76FD341C2B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -63,6 +65,14 @@ Global
 		{C052208B-D2DC-4CA3-B679-B12F2B025B1F}.Release|x64.Build.0 = Release|x64
 		{C052208B-D2DC-4CA3-B679-B12F2B025B1F}.Release|x86.ActiveCfg = Release|Win32
 		{C052208B-D2DC-4CA3-B679-B12F2B025B1F}.Release|x86.Build.0 = Release|Win32
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0}.Debug|x64.ActiveCfg = Debug|x64
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0}.Debug|x64.Build.0 = Debug|x64
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0}.Debug|x86.ActiveCfg = Debug|Win32
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0}.Debug|x86.Build.0 = Debug|Win32
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0}.Release|x64.ActiveCfg = Release|x64
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0}.Release|x64.Build.0 = Release|x64
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0}.Release|x86.ActiveCfg = Release|Win32
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +80,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6F30BEDD-8A20-4125-88D5-C20DA2A366D8} = {C757789D-8090-4979-9571-22C13B1B61CC}
 		{C052208B-D2DC-4CA3-B679-B12F2B025B1F} = {C757789D-8090-4979-9571-22C13B1B61CC}
+		{4224D9D4-074A-4681-BD03-E76FD341C2B0} = {C757789D-8090-4979-9571-22C13B1B61CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B1391385-8483-4FBA-9A13-65EDA3BA3D02}
