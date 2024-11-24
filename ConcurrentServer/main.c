@@ -3,6 +3,7 @@
 #include "./Base/forward_list.h"
 #include "./Servers/accept_server.h"
 #include "./Servers/dispatch_server.h"
+#include "./Servers/console_pipe.h"
 
 #define MESSAGE_SIZE 50
 #define SERVER_NAME_SIZE 15
@@ -11,8 +12,18 @@ HANDLE hAddConnection;
 
 HANDLE hAcceptServer;
 HANDLE hDispatchServer;
+HANDLE hConsolePipe;
 
 LPFORWARD_LIST_NODE lpConnections;
+
+VOID FreeConnection(LPVOID lpParam) {
+	LPCONNECTION lpConnection = (LPCONNECTION)lpParam;
+	if (lpConnection == NULL)
+		return;
+
+	closesocket(lpConnection->s);
+	HeapFree(GetProcessHeap(), 0, lpConnection);
+}
 
 int main(int argc, char* argv[]) {
 	printf("[Main] Status: Start Server\n");
@@ -21,7 +32,7 @@ int main(int argc, char* argv[]) {
 
 	lpConnections = ForwardListCreateNode(NULL);
 
-	if ((hAddConnection = CreateEventA(NULL, FALSE, FALSE, DISPATCH_SERVER_EVENT_NAME)) == NULL) {
+	if ((hAddConnection = CreateEventA(NULL, TRUE, FALSE, DISPATCH_SERVER_EVENT_NAME)) == NULL) {
 		return -1;
 	}
 
@@ -37,6 +48,7 @@ int main(int argc, char* argv[]) {
 	if ((hAcceptServer = CreateThread(NULL, NULL, AcceptServer, &asConfig, NULL, NULL)) == NULL) {
 		return -1;
 	}
+	asConfig.hThread = hAcceptServer;
 
 	DISPATCH_SERVER dsConfig;
 	dsConfig.connections = asConfig.connections;
@@ -44,12 +56,24 @@ int main(int argc, char* argv[]) {
 	if ((hDispatchServer = CreateThread(NULL, NULL, DispatchServer, &dsConfig, NULL, NULL)) == NULL) {
 		return -1;
 	}
+	dsConfig.hThread = hDispatchServer;
 
+	CONSOLE_PIPE cpConfig;
+	cpConfig.as = asConfig;
+	cpConfig.ds = dsConfig;
+	if ((hConsolePipe = CreateThread(NULL, NULL, ConsolePipe, &cpConfig, NULL, NULL)) == NULL) {
+		return -1;
+	}
+	cpConfig.hThread = hConsolePipe;
+
+	WaitForSingleObject(hConsolePipe, INFINITE);
+	CloseHandle(hConsolePipe);
 	WaitForSingleObject(hDispatchServer, INFINITE);
 	CloseHandle(hDispatchServer);
 	WaitForSingleObject(hAcceptServer, INFINITE);
 	CloseHandle(hAcceptServer);
 
+	ForwardListFree(lpConnections, FreeConnection);
 	DeleteCriticalSection(&cs);
 	CloseHandle(hAddConnection);
 	

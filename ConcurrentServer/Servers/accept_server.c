@@ -1,5 +1,7 @@
 #include "./accept_server.h"
 
+#define DISPATCH_SERVER_EVENT_NAME "DispatchServer"
+
 DWORD WINAPI AcceptServer(LPVOID lpParam) {
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)

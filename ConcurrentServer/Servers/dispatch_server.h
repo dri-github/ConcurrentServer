@@ -4,6 +4,9 @@
 #include "../Base/forward_list.h"
 
 #include <Windows.h>
+#pragma warning(disable: 4996)
+
+#define DISPATCH_SERVER_EVENT_NAME "DispatchServer"
 
 #define MAX_SIZE_SERVICE_NAME 16
 #define SERVICE_NAME_POSTFIX ".dll"
@@ -21,6 +24,7 @@ typedef struct _DISPATCH_SERVER {
 	LPFORWARD_LIST_NODE connections;
 	LPCRITICAL_SECTION cs;
 	LPCSTR postfix;
+	HANDLE hThread;
 } DISPATCH_SERVER, *LPDISPATCH_SERVER;
 
 DWORD WINAPI DispatchServer(LPVOID lpParam);

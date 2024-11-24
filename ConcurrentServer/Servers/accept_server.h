@@ -9,6 +9,7 @@ typedef struct _ACCEPT_SERVER {
 	SOCKADDR_IN addr;
 	LPFORWARD_LIST_NODE connections;
 	LPCRITICAL_SECTION cs;
+	HANDLE hThread;
 } ACCEPT_SERVER, *LPACCEPT_SERVER;
 
 DWORD WINAPI AcceptServer(LPVOID lpParam);
