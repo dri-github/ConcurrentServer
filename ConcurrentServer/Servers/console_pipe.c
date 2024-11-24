@@ -103,7 +103,9 @@ BOOL CommandStatistics(CONSOLE_PIPE cp) {
 
 		CHAR buffer[10];
 		strcat(cp.output, itoa(i, buffer, 10));
-		strcat(cp.output, ": Connection ip: ");
+		strcat(cp.output, ": Connection service: \"");
+		strcat(cp.output, lpConnection->sName);
+		strcat(cp.output, "\" ip: ");
 		strcat(cp.output, inet_ntoa(lpConnection->addr.sin_addr));
 		strcat(cp.output, ":");
 		strcat(cp.output, itoa(ntohs(lpConnection->addr.sin_port), buffer, 10));

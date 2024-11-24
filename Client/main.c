@@ -50,11 +50,15 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 
-		CHAR message[64] = "Not cleaned message";
-		//memset(message, 0, sizeof(message));
+		recv(s, serviceNameRecv, sizeof(serviceNameRecv), NULL);
+		CHAR message[100] = "Start";
 
 		do {
+			if (!strcmp(message, "\0"))
+				break;
+
 			printf("Message: %s\n", message);
+			memset(message, 0, sizeof(message));
 			printf("\n");
 			printf("Send: ");
 			//gets(message);
@@ -63,9 +67,8 @@ int main(int argc, char* argv[]) {
 				strcpy(message, "");
 			message[63] = '\0';
 
-			if (send(s, message, sizeof(message), NULL) == SOCKET_ERROR)
+			if (send(s, message, strlen(message) + 1, NULL) == SOCKET_ERROR)
 				break;
-			Sleep(100);
 		} while (recv(s, message, sizeof(message), NULL) != SOCKET_ERROR);
 
 		printf("Close connection\n");

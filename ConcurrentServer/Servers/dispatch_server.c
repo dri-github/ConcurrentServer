@@ -3,6 +3,8 @@
 #include "./accept_server.h"
 #include "../Base/unordered_map.h"
 
+#include <stdio.h>
+
 DWORD WINAPI DispatchServer(LPVOID lpParam) {
 	LPDISPATCH_SERVER server = lpParam;
 	LPFORWARD_LIST_NODE connections = server->connections;
@@ -46,6 +48,11 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 					strcpy(sName + lenght, SERVICE_NAME_POSTFIX);
 
 					HANDLE hService = FindAndLoadServiceLib(libList, sName);
+					LPFORWARD_LIST_NODE it = libList;
+					while ((it = it->Next) != NULL) {
+						LPLOADED_LIB lib = (LPLOADED_LIB)it->Data;
+						printf("Lib: %s\n", lib->name);
+					}
 					if (hService == NULL) {
 						CHAR error[] = "[DispatchServer] Warning: Service name not exist\n";
 						printf("[DispatchServer] Warning: Service name \"%s\" not exist\n", sName);
@@ -58,6 +65,7 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 
 					LPSERVICE_FUNCTION lpFunction = (LPSERVICE_FUNCTION)GetProcAddress(hService, SERVICE_FUNCTION_NAME);
 					if (lpFunction != NULL) {
+						connection->sName = sName;
 						send(connection->s, buffer, sizeof(buffer), NULL);
 						printf("[DispatchServer] Status: The connection %i select service \"%s\"\n", ntohs(connection->addr.sin_port), sName);
 						CreateThread(NULL, NULL, lpFunction, connection, NULL, NULL);
@@ -67,9 +75,9 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 			case CONNECTION_STATE_DROPED:
 				printf("[DispatchServer] Status: Droped connection %i\n", ntohs(connection->addr.sin_port));
 
-				// Need added delete lib function
 				closesocket(connection->s);
 				itPrev->Next = it->Next;
+				DeleteServiceLib(libList, connection->sName);
 				HeapFree(GetProcessHeap(), 0, it->Data);
 				HeapFree(GetProcessHeap(), 0, it);
 				it = itPrev;
@@ -95,18 +103,20 @@ HANDLE AddServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name) {
 	}
 
 	lpLib->name = name;
+	lpLib->refCount = 1;
 	if ((lpLib->handle = LoadLibraryA(name)) == NULL) {
 		HeapFree(GetProcessHeap(), 0, lpLib);
 		return NULL;
 	}
 
+	printf("[DispatchServer] Status: Loaded lib \"%s\"\n", name);
 	ForwardListPushFront(lpLibList, lpLib);
 	return lpLib->handle;
 }
 
 HANDLE FindServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name) {
-	LPFORWARD_LIST_NODE it;
-	while ((it = lpLibList->Next) != NULL) {
+	LPFORWARD_LIST_NODE it = lpLibList;
+	while ((it = it->Next) != NULL) {
 		LPLOADED_LIB lib = it->Data;
 		
 		if (!strcmp(lib->name, name)) {
@@ -127,20 +137,23 @@ HANDLE FindAndLoadServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name) {
 }
 
 VOID DeleteServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name) {
-	LPFORWARD_LIST_NODE it;
-	LPFORWARD_LIST_NODE itPrev = lpLibList;
-	while ((it = lpLibList->Next) != NULL) {
+	LPFORWARD_LIST_NODE it = lpLibList;
+	LPFORWARD_LIST_NODE itPrev = it;
+	while ((it = it->Next) != NULL) {
 		LPLOADED_LIB lib = it->Data;
 
 		if (!strcmp(lib->name, name)) {
-			if (--lib->refCount == 0) {
+			if ((--lib->refCount) == 0) {
 				FreeLibrary(lib->handle);
 				HeapFree(GetProcessHeap(), 0, lib->name);
 
 				itPrev->Next = it->Next;
+				HeapFree(GetProcessHeap(), 0, lib);
 				HeapFree(GetProcessHeap(), 0, it);
-			}
 
+				printf("[DispatchServer] Status: Unloaded lib \"%s\"\n", name);
+				it = itPrev;
+			}
 			return;
 		}
 

@@ -12,6 +12,7 @@ typedef struct _CONNECTION {
 	SOCKET s;
 	SOCKADDR_IN addr;
 	DWORD state;
+	LPCSTR sName;
 } CONNECTION, * LPCONNECTION;
 
 #endif // !CONNECTION_H
