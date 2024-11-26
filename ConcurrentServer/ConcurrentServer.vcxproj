@@ -128,11 +128,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Base\unordered_map.c" />
+    <ClCompile Include="connection.c" />
     <ClCompile Include="Servers\accept_server.c" />
     <ClCompile Include="Servers\console_pipe.c" />
     <ClCompile Include="Servers\dispatch_server.c" />
     <ClCompile Include="Base\forward_list.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="Servers\index_server.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\unordered_map.h" />
@@ -142,6 +144,7 @@
     <ClInclude Include="Servers\dispatch_server.h" />
     <ClInclude Include="Base\forward_list.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Servers\index_server.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

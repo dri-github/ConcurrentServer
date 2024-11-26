@@ -4,6 +4,7 @@
 #include "./Servers/accept_server.h"
 #include "./Servers/dispatch_server.h"
 #include "./Servers/console_pipe.h"
+#include "./Servers/index_server.h"
 
 #define MESSAGE_SIZE 50
 #define SERVER_NAME_SIZE 15
@@ -13,6 +14,7 @@ HANDLE hAddConnection;
 HANDLE hAcceptServer;
 HANDLE hDispatchServer;
 HANDLE hConsolePipe;
+HANDLE hIndexServer;
 
 LPFORWARD_LIST_NODE lpConnections;
 
@@ -66,12 +68,17 @@ int main(int argc, char* argv[]) {
 	}
 	cpConfig.hThread = hConsolePipe;
 
+	Sleep(1000);
+	hIndexServer = CreateThread(NULL, NULL, IndexServer, NULL, NULL, NULL);
+
 	WaitForSingleObject(hConsolePipe, INFINITE);
 	CloseHandle(hConsolePipe);
 	WaitForSingleObject(hDispatchServer, INFINITE);
 	CloseHandle(hDispatchServer);
 	WaitForSingleObject(hAcceptServer, INFINITE);
 	CloseHandle(hAcceptServer);
+
+	TerminateThread(hIndexServer, NULL);
 
 	ForwardListFree(lpConnections, FreeConnection);
 	DeleteCriticalSection(&cs);

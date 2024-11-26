@@ -30,7 +30,7 @@ DWORD WINAPI ConsolePipe(LPVOID lpParam) {
 	while (ConnectNamedPipe(hPipe, NULL)) {
 		printf("[ConsolePipe] Status: Connected admin\n");
 		while (TRUE) {
-			CHAR buffer[100];
+			CHAR buffer[512];
 			lpConsolePipe->output = buffer;
 			memset(buffer, 0, sizeof(buffer));
 			DWORD rl = 0;
@@ -101,7 +101,7 @@ BOOL CommandStatistics(CONSOLE_PIPE cp) {
 		LPCONNECTION lpConnection = (LPCONNECTION)it->Data;
 		i++;
 
-		CHAR buffer[10];
+		CHAR buffer[100];
 		strcat(cp.output, itoa(i, buffer, 10));
 		strcat(cp.output, ": Connection service: \"");
 		strcat(cp.output, lpConnection->sName);
@@ -109,6 +109,10 @@ BOOL CommandStatistics(CONSOLE_PIPE cp) {
 		strcat(cp.output, inet_ntoa(lpConnection->addr.sin_addr));
 		strcat(cp.output, ":");
 		strcat(cp.output, itoa(ntohs(lpConnection->addr.sin_port), buffer, 10));
+		strcat(cp.output, " time: ");
+
+		strftime(buffer, sizeof(buffer), "%d.%m.%y/%H:%M:%S", localtime(&lpConnection->tStart));
+		strcat(cp.output, buffer);
 		strcat(cp.output, "\n");
 	}
 
@@ -121,11 +125,15 @@ BOOL CommandWait(CONSOLE_PIPE cp) {
 		return FALSE;
 	}
 
+	CommandStop(cp);
+
 	while (cp.ds.connections->Next != NULL) {
 		DWORD dwWaitResult;
 		while ((dwWaitResult = WaitForSingleObject(hAddConnection, 1)) != WAIT_OBJECT_0);
 		Sleep(1000);
 	}
+
+	CommandStart(cp);
 
 	return TRUE;
 }

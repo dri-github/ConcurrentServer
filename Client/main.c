@@ -17,9 +17,79 @@ int main(int argc, char* argv[]) {
 
 		CHAR ipText[16];
 		memset(ipText, 0, sizeof(ipText));
+
 		printf("Target IP: ");
 		if (!scanf("%s", ipText))
 			return 1;
+		ipText[sizeof(ipText) - 1] = '\0';
+
+		SOCKADDR_IN addr;
+		addr.sin_family = AF_INET;
+		addr.sin_port = htons(2000);
+
+		struct hostent* tHost;
+		if ((tHost = gethostbyname(ipText)) != NULL) {
+			int i = 0;
+			while (tHost->h_addr_list[i] != NULL) {
+				addr.sin_addr.s_addr = *(long*)tHost->h_addr_list[i++];
+				if (connect(s, &addr, sizeof(addr)) != SOCKET_ERROR)
+					break;
+			}
+
+			if (i >= 0 && tHost->h_addr_list[--i] == NULL) {
+				printf("Connection error\n");
+				continue;
+			}
+		}
+		else {
+			addr.sin_addr.s_addr = inet_addr(ipText);
+			if (connect(s, &addr, sizeof(addr)) != SOCKET_ERROR) {
+				printf("Connection error\n");
+				continue;
+			}
+			else {
+				if (!strcmp(ipText, "*")) {
+					SOCKET sUDP;
+					if ((sUDP = socket(AF_INET, SOCK_DGRAM, NULL)) == INVALID_SOCKET) {
+						printf("UDP socket error\n");
+						continue;
+					}
+
+					BOOL trueflag = TRUE;
+					if (setsockopt(sUDP, SOL_SOCKET, SO_BROADCAST,
+						(char*)&trueflag, sizeof(trueflag)) < 0)
+						continue;
+
+					CHAR ipBroadcast[20];
+					printf("\nFor connect by server call\n");
+					printf("Broadcast address: ");
+					if (!scanf("%s", ipBroadcast))
+						return 1;
+
+					SOCKADDR_IN addrIndex;
+					addrIndex.sin_family = AF_INET;
+					addrIndex.sin_port = htons(2000);
+					addrIndex.sin_addr.s_addr = inet_addr(ipBroadcast);
+					
+					CHAR req[16] = "index";
+					sendto(sUDP, req, strlen(req) + 1, NULL, (struct sockaddr_in*)&addrIndex, sizeof(addrIndex));
+
+					SOCKADDR_IN clnt;
+					memset(&clnt, 0, sizeof(clnt));
+					SIZE_T lc = sizeof(clnt);
+					if (recvfrom(sUDP, req, sizeof(req), NULL, (struct sockaddr*)&clnt, &lc) == SOCKET_ERROR) {
+						printf("UDP recvfrom error\n");
+						continue;
+					}
+
+					addr.sin_addr.s_addr = clnt.sin_addr.s_addr;
+					if (connect(s, &addr, sizeof(addr)) == SOCKET_ERROR) {
+						printf("Connection by UDP error\n");
+						continue;
+					}
+				}
+			}
+		}
 
 		CHAR serviceName[16];
 		memset(serviceName, 0, sizeof(serviceName));
@@ -27,14 +97,6 @@ int main(int argc, char* argv[]) {
 		if (!scanf("%s", serviceName))
 			return 1;
 		printf("========================================\n");
-
-		SOCKADDR_IN addr;
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons(2000);
-		addr.sin_addr.s_addr = inet_addr(ipText);
-
-		if (connect(s, &addr, sizeof(addr)) == SOCKET_ERROR)
-			return -1;
 
 		send(s, serviceName, strlen(serviceName) + 1, NULL);
 

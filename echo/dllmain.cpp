@@ -27,6 +27,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 #define DISPATCH_SERVER_EVENT_NAME "DispatchServer"
 
 #include "../ConcurrentServer/connection.h"
+#include "../ConcurrentServer/connection.c"
 
 extern "C"
 {
@@ -41,6 +42,7 @@ extern "C"
             printf("[EchoService] Status: Reply \"%s\"\n", text);
             if (strcmp(text, "") == 0)
                 break;
+            UpdateTimer(lpConnection);
             if (send(lpConnection->s, text, strlen(text) + 1, NULL) == SOCKET_ERROR)
                 break;
         }

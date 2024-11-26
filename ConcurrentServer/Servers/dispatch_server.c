@@ -4,6 +4,7 @@
 #include "../Base/unordered_map.h"
 
 #include <stdio.h>
+#include <time.h>
 
 DWORD WINAPI DispatchServer(LPVOID lpParam) {
 	LPDISPATCH_SERVER server = lpParam;
@@ -16,10 +17,29 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 
 	LPFORWARD_LIST_NODE libList = ForwardListCreateNode(NULL);
 
+	HANDLE hTimer;
+	if ((hTimer = CreateWaitableTimerA(NULL, TRUE, TIMER_NAME)) == NULL) {
+		return -1;
+	}
+	LARGE_INTEGER liDueTime;
+	//FILETIME ft;
+	liDueTime.QuadPart = -TIMER_SECOND * 60000;
+	//if (!SetWaitableTimer(hTimer, &liDueTime, 5000, NULL, NULL, FALSE)) {
+	//
+	//}
+
 	while (TRUE) {
 		DWORD dwWaitResult;
-		while ((dwWaitResult = WaitForSingleObject(hAddConnection, 1)) != WAIT_OBJECT_0);
+		while ((dwWaitResult = WaitForSingleObject(hAddConnection, 1)) != WAIT_OBJECT_0 &&
+			   (dwWaitResult = WaitForSingleObject(hTimer, 1)) != WAIT_OBJECT_0);
 
+		if (connections->Next == NULL) {
+			if (!SetWaitableTimer(hTimer, &liDueTime, NULL, NULL, NULL, FALSE)) {
+				
+			}
+		}
+
+		TIME_T tCurrent = time(NULL);
 		printf("[DispatchServer] Status: Updating\n");
 		EnterCriticalSection(server->cs);
 		LPFORWARD_LIST_NODE it = connections;
@@ -29,6 +49,11 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 			switch (connection->state) {
 			case CONNECTION_STATE_ACCEPTED: {
 					connection->state = CONNECTION_STATE_SUCCESS;
+					connection->tChange = connection->tStart = time(NULL);
+					connection->tWait = 60 * 10;
+					if (!UpdateTimer(connection)) {
+						printf("[DispatchServer] Status: Not set timer %i\n", GetLastError());
+					}
 					printf("[DispatchServer] Status: Changing service for %i\n", ntohs(connection->addr.sin_port));
 
 					LPSTR buffer[MAX_SIZE_SERVICE_NAME + 1];
@@ -59,7 +84,7 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 						printf("[DispatchServer] Status: Drop connection for %i\n", ntohs(connection->addr.sin_port));
 						send(connection->s, error, strlen(error) + 1, NULL);
 						closesocket(connection->s);
-						connection->state = 1;
+						connection->state = CONNECTION_STATE_SUCCESS;
 						continue;
 					}
 
@@ -72,6 +97,20 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 					}
 					break;
 				}
+			case CONNECTION_STATE_SUCCESS: {
+				//printf("Time = %i\n", (int)(tCurrent - connection->tChange));
+				if (tCurrent - connection->tChange >= connection->tWait) {
+					printf("[DispatchServer] Status: Droped connection %i by timer\n", ntohs(connection->addr.sin_port));
+
+					closesocket(connection->s);
+					itPrev->Next = it->Next;
+					DeleteServiceLib(libList, connection->sName);
+					HeapFree(GetProcessHeap(), 0, it->Data);
+					HeapFree(GetProcessHeap(), 0, it);
+					it = itPrev;
+				}
+				break;
+			}
 			case CONNECTION_STATE_DROPED:
 				printf("[DispatchServer] Status: Droped connection %i\n", ntohs(connection->addr.sin_port));
 
