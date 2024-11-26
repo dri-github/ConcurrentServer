@@ -41,10 +41,10 @@ int main(int argc, char* argv[]) {
 				break;
 			}
 
-			CHAR result[64];
+			CHAR result[2048];
 			memset(result, 0, sizeof(result));
 			DWORD result_size = 0;
-			ReadFile(hPipe, result, write_size, &result_size, NULL);
+			ReadFile(hPipe, result, sizeof(result), &result_size, NULL);
 
 			printf(result);
 		}

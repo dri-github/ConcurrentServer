@@ -135,6 +135,7 @@
     <ClCompile Include="Base\forward_list.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="Servers\index_server.c" />
+    <ClCompile Include="UI\ui.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\unordered_map.h" />
@@ -145,6 +146,7 @@
     <ClInclude Include="Base\forward_list.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Servers\index_server.h" />
+    <ClInclude Include="UI\ui.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -63,6 +63,8 @@ int main(int argc, char* argv[]) {
 	CONSOLE_PIPE cpConfig;
 	cpConfig.as = asConfig;
 	cpConfig.ds = dsConfig;
+	cpConfig.output = (LPSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(CHAR) * CONSOLE_PIPE_OUT_SIZE);
+	memset(cpConfig.output, 0, 512);
 	if ((hConsolePipe = CreateThread(NULL, NULL, ConsolePipe, &cpConfig, NULL, NULL)) == NULL) {
 		return -1;
 	}
@@ -73,6 +75,7 @@ int main(int argc, char* argv[]) {
 
 	WaitForSingleObject(hConsolePipe, INFINITE);
 	CloseHandle(hConsolePipe);
+	HeapFree(GetProcessHeap(), 0, cpConfig.output);
 	WaitForSingleObject(hDispatchServer, INFINITE);
 	CloseHandle(hDispatchServer);
 	WaitForSingleObject(hAcceptServer, INFINITE);
