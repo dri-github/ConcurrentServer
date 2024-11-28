@@ -24,6 +24,4 @@ typedef struct _CONNECTION {
 	TIME_T tStart;
 } CONNECTION, * LPCONNECTION;
 
-BOOL WINAPI UpdateTimer(LPCONNECTION cn);
-
 #endif // !CONNECTION_H

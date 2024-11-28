@@ -9,6 +9,7 @@
 #define DISPATCH_SERVER_EVENT_NAME "DispatchServer"
 
 #define MAX_SIZE_SERVICE_NAME 16
+#define SERVICE_PATH_PREFIX "./Services/"
 #define SERVICE_NAME_POSTFIX ".dll"
 #define SERVICE_FUNCTION_NAME "Service"
 #define CONSOLE_PIPE_OUT_SIZE 2048

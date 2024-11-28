@@ -22,25 +22,26 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 		return -1;
 	}
 	LARGE_INTEGER liDueTime;
-	//FILETIME ft;
-	liDueTime.QuadPart = -TIMER_SECOND * 60000;
-	//if (!SetWaitableTimer(hTimer, &liDueTime, 5000, NULL, NULL, FALSE)) {
-	//
-	//}
 
 	while (TRUE) {
 		DWORD dwWaitResult;
 		while ((dwWaitResult = WaitForSingleObject(hAddConnection, 1)) != WAIT_OBJECT_0 &&
 			   (dwWaitResult = WaitForSingleObject(hTimer, 1)) != WAIT_OBJECT_0);
 
+		TIME_T tCurrent = time(NULL);
+		printf("[DispatchServer] Status: Updating\n");
+
+		TIME_T nearlyTime = 5;
 		if (connections->Next == NULL) {
+			liDueTime.QuadPart = -TIMER_SECOND * nearlyTime;
 			if (!SetWaitableTimer(hTimer, &liDueTime, NULL, NULL, NULL, FALSE)) {
-				
+				printf("[DispatchServer] Error: SetWaitableTimer by connections count 0\n");
+			}
+			else {
+				printf("[DispatchServer] Status: connections count 0. SetWaitableTimer = %i s\n", (int)(nearlyTime / TIMER_SECOND));
 			}
 		}
 
-		TIME_T tCurrent = time(NULL);
-		printf("[DispatchServer] Status: Updating\n");
 		EnterCriticalSection(server->cs);
 		LPFORWARD_LIST_NODE it = connections;
 		LPFORWARD_LIST_NODE itPrev = it;
@@ -50,10 +51,7 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 			case CONNECTION_STATE_ACCEPTED: {
 					connection->state = CONNECTION_STATE_SUCCESS;
 					connection->tChange = connection->tStart = time(NULL);
-					connection->tWait = 60 * 10;
-					if (!UpdateTimer(connection)) {
-						printf("[DispatchServer] Status: Not set timer %i\n", GetLastError());
-					}
+					connection->tWait = 5;
 					printf("[DispatchServer] Status: Changing service for %i\n", ntohs(connection->addr.sin_port));
 
 					LPSTR buffer[MAX_SIZE_SERVICE_NAME + 1];
@@ -66,11 +64,15 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 					}
 
 					LPSTR sName;
-					if ((sName = (LPSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, lenght + strlen(SERVICE_NAME_POSTFIX) + 1)) == NULL) {
+					SIZE_T sNameLength = strlen(buffer) + strlen(SERVICE_PATH_PREFIX) + strlen(SERVICE_NAME_POSTFIX);
+					if ((sName = (LPSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sNameLength + 1)) == NULL) {
 						continue;
 					}
-					strcpy(sName, buffer);
-					strcpy(sName + lenght, SERVICE_NAME_POSTFIX);
+					
+					strcpy(sName, SERVICE_PATH_PREFIX);
+					strcat(sName, buffer);
+					strcat(sName, SERVICE_NAME_POSTFIX);
+					sName[sNameLength] = '\0';
 
 					HANDLE hService = FindAndLoadServiceLib(libList, sName);
 					LPFORWARD_LIST_NODE it = libList;
@@ -98,7 +100,10 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 					break;
 				}
 			case CONNECTION_STATE_SUCCESS: {
-				//printf("Time = %i\n", (int)(tCurrent - connection->tChange));
+				TIME_T dt = connection->tWait - (tCurrent - connection->tChange);
+				if (dt < nearlyTime)
+					nearlyTime = dt;
+
 				if (tCurrent - connection->tChange >= connection->tWait) {
 					printf("[DispatchServer] Status: Droped connection %i by timer\n", ntohs(connection->addr.sin_port));
 
@@ -126,6 +131,12 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 			}
 
 			itPrev = it;
+		}
+
+		nearlyTime++;
+		liDueTime.QuadPart = -TIMER_SECOND * nearlyTime;
+		if (!SetWaitableTimer(hTimer, &liDueTime, NULL, NULL, NULL, FALSE)) {
+			printf("[DispatchServer] Error: SetWaitableTimer\n");
 		}
 		LeaveCriticalSection(server->cs);
 

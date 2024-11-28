@@ -52,6 +52,7 @@ extern "C"
             LPSTR res = itoa(rand(), buffer, 10);
             memcpy(text, res, strlen(res) + 1);
 
+            lpConnection->tChange = time(NULL);
             if (send(lpConnection->s, text, strlen(text) + 1, NULL) == SOCKET_ERROR)
                 break;
         }

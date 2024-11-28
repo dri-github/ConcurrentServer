@@ -50,6 +50,7 @@ extern "C"
             timeinfo = localtime(&rawtime);
             strftime(text, sizeof(text), "%d.%m.%y/%H:%M:%S", timeinfo);
 
+            lpConnection->tChange = time(NULL);
             if (send(lpConnection->s, text, strlen(text) + 1, NULL) == SOCKET_ERROR)
                 break;
         }
