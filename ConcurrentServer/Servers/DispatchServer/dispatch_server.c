@@ -1,7 +1,6 @@
 #include "./dispatch_server.h"
 
-#include "./accept_server.h"
-#include "../Base/unordered_map.h"
+#include "../accept_server.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -9,6 +8,7 @@
 DWORD WINAPI DispatchServer(LPVOID lpParam) {
 	LPDISPATCH_SERVER server = lpParam;
 	LPFORWARD_LIST_NODE connections = server->connections;
+	LPLIB_LOADER lpLibLoader = server->lpLibLoader;
 
 	HANDLE hAddConnection;
 	if ((hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) == NULL) {
@@ -51,7 +51,7 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 			case CONNECTION_STATE_ACCEPTED: {
 					connection->state = CONNECTION_STATE_SUCCESS;
 					connection->tChange = connection->tStart = time(NULL);
-					connection->tWait = 5;
+					connection->tWait = 60;
 					printf("[DispatchServer] Status: Changing service for %i\n", ntohs(connection->addr.sin_port));
 
 					LPSTR buffer[MAX_SIZE_SERVICE_NAME + 1];
@@ -74,12 +74,13 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 					strcat(sName, SERVICE_NAME_POSTFIX);
 					sName[sNameLength] = '\0';
 
-					HANDLE hService = FindAndLoadServiceLib(libList, sName);
-					LPFORWARD_LIST_NODE it = libList;
-					while ((it = it->Next) != NULL) {
-						LPLOADED_LIB lib = (LPLOADED_LIB)it->Data;
-						printf("Lib: %s\n", lib->name);
-					}
+					//HANDLE hService = FindAndLoadServiceLib(libList, sName);
+					//LPFORWARD_LIST_NODE it = libLoader.lpLibs;
+					//while ((it = it->Next) != NULL) {
+					//	LPLOADED_LIB lib = (LPLOADED_LIB)it->Data;
+					//	printf("Lib: %s\n", lib->name);
+					//}
+					HANDLE hService = LibLoaderGet(lpLibLoader, sName);
 					if (hService == NULL) {
 						CHAR error[] = "[DispatchServer] Warning: Service name not exist\n";
 						printf("[DispatchServer] Warning: Service name \"%s\" not exist\n", sName);
@@ -109,7 +110,8 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 
 					closesocket(connection->s);
 					itPrev->Next = it->Next;
-					DeleteServiceLib(libList, connection->sName);
+					//DeleteServiceLib(libList, connection->sName);
+					LibloaderUnload(lpLibLoader, connection->sName);
 					HeapFree(GetProcessHeap(), 0, it->Data);
 					HeapFree(GetProcessHeap(), 0, it);
 					it = itPrev;
@@ -121,7 +123,8 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 
 				closesocket(connection->s);
 				itPrev->Next = it->Next;
-				DeleteServiceLib(libList, connection->sName);
+				//DeleteServiceLib(libList, connection->sName);
+				LibloaderUnload(lpLibLoader, connection->sName);
 				HeapFree(GetProcessHeap(), 0, it->Data);
 				HeapFree(GetProcessHeap(), 0, it);
 				it = itPrev;

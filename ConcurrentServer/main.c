@@ -52,8 +52,10 @@ int main(int argc, char* argv[]) {
 	}
 	asConfig.hThread = hAcceptServer;
 
+	LIB_LOADER libLoader = { ForwardListCreateNode(NULL)};
 	DISPATCH_SERVER dsConfig;
 	dsConfig.connections = asConfig.connections;
+	dsConfig.lpLibLoader = &libLoader;
 	dsConfig.cs = &cs;
 	if ((hDispatchServer = CreateThread(NULL, NULL, DispatchServer, &dsConfig, NULL, NULL)) == NULL) {
 		return -1;

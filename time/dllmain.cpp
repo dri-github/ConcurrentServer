@@ -36,7 +36,7 @@ extern "C"
         LPCONNECTION lpConnection = (LPCONNECTION)lpParam;
 
         printf("[TimeService] Status: Start\n");
-        CHAR text[64];
+        CHAR text[64];InterlockedExchange(&lpConnection->state, CONNECTION_STATE_DROPED);
         memset(text, 0, sizeof(text));
         while (recv(lpConnection->s, text, sizeof(text), NULL) != SOCKET_ERROR) {
             if (strcmp(text, "time")) {
@@ -50,12 +50,12 @@ extern "C"
             timeinfo = localtime(&rawtime);
             strftime(text, sizeof(text), "%d.%m.%y/%H:%M:%S", timeinfo);
 
-            lpConnection->tChange = time(NULL);
+            InterlockedExchange((unsigned long long*) & lpConnection->tChange, time(NULL));
             if (send(lpConnection->s, text, strlen(text) + 1, NULL) == SOCKET_ERROR)
                 break;
         }
 
-        lpConnection->state = CONNECTION_STATE_DROPED;
+        InterlockedExchange(&lpConnection->state, CONNECTION_STATE_DROPED);
         HANDLE hEvent;
         if ((hEvent = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) != NULL) {
             SetEvent(hEvent);

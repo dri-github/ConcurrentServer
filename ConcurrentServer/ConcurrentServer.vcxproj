@@ -129,9 +129,10 @@
   <ItemGroup>
     <ClCompile Include="Base\unordered_map.c" />
     <ClCompile Include="connection.c" />
+    <ClCompile Include="Servers\DispatchServer\lib_loader.c" />
     <ClCompile Include="Servers\accept_server.c" />
-    <ClCompile Include="Servers\console_pipe.c" />
-    <ClCompile Include="Servers\dispatch_server.c" />
+    <ClCompile Include="Servers\ConsolePipe\console_pipe.c" />
+    <ClCompile Include="Servers\DispatchServer\dispatch_server.c" />
     <ClCompile Include="Base\forward_list.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="Servers\index_server.c" />
@@ -140,13 +141,18 @@
   <ItemGroup>
     <ClInclude Include="Base\unordered_map.h" />
     <ClInclude Include="connection.h" />
+    <ClInclude Include="Servers\DispatchServer\lib_loader.h" />
     <ClInclude Include="Servers\accept_server.h" />
-    <ClInclude Include="Servers\console_pipe.h" />
-    <ClInclude Include="Servers\dispatch_server.h" />
+    <ClInclude Include="Servers\ConsolePipe\Commands\libctl\libctl.h" />
+    <ClInclude Include="Servers\ConsolePipe\console_pipe.h" />
+    <ClInclude Include="Servers\DispatchServer\dispatch_server.h" />
     <ClInclude Include="Base\forward_list.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Servers\index_server.h" />
     <ClInclude Include="UI\ui.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="conf.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

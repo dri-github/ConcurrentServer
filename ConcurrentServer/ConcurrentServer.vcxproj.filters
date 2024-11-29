@@ -24,10 +24,10 @@
     <ClCompile Include="Servers\accept_server.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Servers\dispatch_server.c">
+    <ClCompile Include="Servers\DispatchServer\dispatch_server.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Servers\console_pipe.c">
+    <ClCompile Include="Servers\ConsolePipe\console_pipe.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="Base\unordered_map.c">
@@ -42,6 +42,9 @@
     <ClCompile Include="UI\ui.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Servers\DispatchServer\lib_loader.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\forward_list.h">
@@ -50,7 +53,7 @@
     <ClInclude Include="Servers\accept_server.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Servers\dispatch_server.h">
+    <ClInclude Include="Servers\DispatchServer\dispatch_server.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
@@ -59,7 +62,7 @@
     <ClInclude Include="connection.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Servers\console_pipe.h">
+    <ClInclude Include="Servers\ConsolePipe\console_pipe.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Base\unordered_map.h">
@@ -71,5 +74,14 @@
     <ClInclude Include="UI\ui.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Servers\DispatchServer\lib_loader.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Servers\ConsolePipe\Commands\libctl\libctl.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="conf.ini" />
   </ItemGroup>
 </Project>

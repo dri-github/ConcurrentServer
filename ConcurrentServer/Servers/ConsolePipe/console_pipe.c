@@ -1,7 +1,7 @@
 #include "./console_pipe.h"
 
-#include "../Base/forward_list.h"
-#include "../UI/ui.h"
+#include "../../Base/forward_list.h"
+#include "../../UI/ui.h"
 
 #include <stdio.h>
 
@@ -38,6 +38,14 @@ DWORD WINAPI ConsolePipe(LPVOID lpParam) {
 				break;
 			}
 
+			LPSTR secondWord;
+			for (secondWord = buffer; secondWord < buffer + strlen(buffer); secondWord++) {
+				if (*secondWord == ' ') {
+					*(secondWord++) = '\0';
+					break;
+				}
+			}
+
 			BOOL isExist = FALSE;
 			LPFORWARD_LIST_NODE it = commandsList;
 			while ((it = it->Next) != NULL) {
@@ -45,7 +53,7 @@ DWORD WINAPI ConsolePipe(LPVOID lpParam) {
 				if (!strcmp(lpCommand->name, buffer)) {
 					memset(buffer, 0, sizeof(buffer));
 					memset(lpConsolePipe->output, 0, CONSOLE_PIPE_OUT_SIZE);
-					if (!lpCommand->func(*lpConsolePipe)) {
+					if (!lpCommand->func(*lpConsolePipe, secondWord)) {
 						strcat(buffer, "Error of execute command ");
 						strcat(buffer, lpCommand->name);
 						strcat(buffer, "\n");
@@ -75,17 +83,17 @@ DWORD WINAPI ConsolePipe(LPVOID lpParam) {
 	return 0;
 }
 
-BOOL CommandStart(CONSOLE_PIPE cp) {
+BOOL CommandStart(CONSOLE_PIPE cp, LPCSTR argv) {
 	ResumeThread(cp.as.hThread);
 	return TRUE;
 }
 
-BOOL CommandStop(CONSOLE_PIPE cp) {
+BOOL CommandStop(CONSOLE_PIPE cp, LPCSTR argv) {
 	SuspendThread(cp.as.hThread);
 	return TRUE;
 }
 
-BOOL CommandExit(CONSOLE_PIPE cp) {
+BOOL CommandExit(CONSOLE_PIPE cp, LPCSTR argv) {
 	// Memory lost (need fix)
 	TerminateThread(cp.as.hThread, NULL);
 	TerminateThread(cp.ds.hThread, NULL);
@@ -93,11 +101,11 @@ BOOL CommandExit(CONSOLE_PIPE cp) {
 	return TRUE;
 }
 
-BOOL CommandStatistics(CONSOLE_PIPE cp) {
+BOOL CommandStatistics(CONSOLE_PIPE cp, LPCSTR argv) {
 	strcat(cp.output, "\nConnections list:\n");
 
 	SIZE_T iLength = 4;
-	SIZE_T sNameLength = 10;
+	SIZE_T sNameLength = 20;
 	SIZE_T ipLength = 21;
 	SIZE_T portLength = 8;
 	SIZE_T timeLength = 21;
@@ -110,7 +118,7 @@ BOOL CommandStatistics(CONSOLE_PIPE cp) {
 	strcat(cp.output, horizontal_align_text(buf, ipLength, ' ', TA_HORIZONTAL_CENTER));
 	memcpy(buf, "Port", strlen("Port") + 1);
 	strcat(cp.output, horizontal_align_text(buf, portLength, ' ', TA_HORIZONTAL_CENTER));
-	memcpy(buf, "Time", strlen("Time") + 1);
+	memcpy(buf, "Connect Time", strlen("Connect Time") + 1);
 	strcat(cp.output, horizontal_align_text(buf, timeLength, ' ', TA_HORIZONTAL_CENTER));
 
 	strcat(cp.output, "\n");
@@ -143,13 +151,13 @@ BOOL CommandStatistics(CONSOLE_PIPE cp) {
 	return TRUE;
 }
 
-BOOL CommandWait(CONSOLE_PIPE cp) {
+BOOL CommandWait(CONSOLE_PIPE cp, LPCSTR argv) {
 	HANDLE hAddConnection;
 	if ((hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) == NULL) {
 		return FALSE;
 	}
 
-	CommandStop(cp);
+	CommandStop(cp, argv);
 
 	while (cp.ds.connections->Next != NULL) {
 		DWORD dwWaitResult;
@@ -157,14 +165,38 @@ BOOL CommandWait(CONSOLE_PIPE cp) {
 		Sleep(1000);
 	}
 
-	CommandStart(cp);
+	CommandStart(cp, argv);
 
 	return TRUE;
 }
 
-BOOL CommandShutdown(CONSOLE_PIPE cp) {
-	CommandWait(cp);
-	CommandExit(cp);
+BOOL CommandShutdown(CONSOLE_PIPE cp, LPCSTR argv) {
+	CommandWait(cp, argv);
+	CommandExit(cp, argv);
 
+	return TRUE;
+}
+
+BOOL CommandLibset(CONSOLE_PIPE cp, LPCSTR argv) {
+	DISPATCH_SERVER ds = cp.ds;
+
+	LPSTR command = argv;
+	//LPSTR libName = trimWord(command);
+
+	if (!strcmp(command, "ps")) {
+
+	}
+	else if (!strcmp(command, "lock")) {
+
+	}
+	else if (!strcmp(command, "unlock")) {
+
+	}
+	else if (!strcmp(command, "fixed")) {
+
+	}
+	else {
+		return FALSE;
+	}
 	return TRUE;
 }

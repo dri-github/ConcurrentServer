@@ -42,13 +42,12 @@ extern "C"
             if (strcmp(text, "") == 0)
                 break;
             
-            //lpConnection->tChange = time(NULL);
             InterlockedExchange((unsigned long long*) & lpConnection->tChange, time(NULL));
             if (send(lpConnection->s, text, strlen(text) + 1, NULL) == SOCKET_ERROR)
                 break;
         }
         
-        lpConnection->state = CONNECTION_STATE_DROPED;
+        InterlockedExchange(&lpConnection->state, CONNECTION_STATE_DROPED);
         HANDLE hEvent;
         if ((hEvent = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) != NULL) {
             SetEvent(hEvent);
