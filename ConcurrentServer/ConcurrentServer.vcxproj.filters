@@ -48,6 +48,12 @@
     <ClCompile Include="Servers\ConsolePipe\Commands\libctl\libctl.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Parsers\ini_parser.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Servers\ConsolePipe\Commands\acserv\acserv.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\forward_list.h">
@@ -81,6 +87,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Servers\ConsolePipe\Commands\libctl\libctl.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Parsers\ini_parser.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Servers\ConsolePipe\Commands\acserv\acserv.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

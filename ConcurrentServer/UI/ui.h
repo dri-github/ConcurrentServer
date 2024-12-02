@@ -12,6 +12,8 @@
 char* horizontal_align_text(char* text, size_t length, int background, int align);
 
 char* trimWord(const char* text);
+char* trim(char* str);
+char* find_substr(const char* str, const char* substr);
 
 typedef struct _char_column {
 	size_t width;

@@ -7,7 +7,7 @@
 #include <Windows.h>
 
 typedef struct _CONSOLE_PIPE {
-	ACCEPT_SERVER as;
+	LPFORWARD_LIST_NODE ass;
 	DISPATCH_SERVER ds;
 	HANDLE hThread;
 	LPSTR output;

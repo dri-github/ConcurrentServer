@@ -74,12 +74,6 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 					strcat(sName, SERVICE_NAME_POSTFIX);
 					sName[sNameLength] = '\0';
 
-					//HANDLE hService = FindAndLoadServiceLib(libList, sName);
-					//LPFORWARD_LIST_NODE it = libLoader.lpLibs;
-					//while ((it = it->Next) != NULL) {
-					//	LPLOADED_LIB lib = (LPLOADED_LIB)it->Data;
-					//	printf("Lib: %s\n", lib->name);
-					//}
 					HANDLE hService = LibLoaderGet(lpLibLoader, sName);
 					if (hService == NULL) {
 						CHAR error[] = "[DispatchServer] Warning: Service name not exist\n";
@@ -110,7 +104,6 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 
 					closesocket(connection->s);
 					itPrev->Next = it->Next;
-					//DeleteServiceLib(libList, connection->sName);
 					LibloaderUnload(lpLibLoader, connection->sName);
 					HeapFree(GetProcessHeap(), 0, it->Data);
 					HeapFree(GetProcessHeap(), 0, it);
@@ -123,7 +116,6 @@ DWORD WINAPI DispatchServer(LPVOID lpParam) {
 
 				closesocket(connection->s);
 				itPrev->Next = it->Next;
-				//DeleteServiceLib(libList, connection->sName);
 				LibloaderUnload(lpLibLoader, connection->sName);
 				HeapFree(GetProcessHeap(), 0, it->Data);
 				HeapFree(GetProcessHeap(), 0, it);

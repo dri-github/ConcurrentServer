@@ -8,13 +8,6 @@
 #define LIB_STATE_WAITLOCKED 2
 #define LIB_STATE_FIXED 3
 
-//const char* LibStateToText[] = {
-//	"loaded",
-//	"locked",
-//	"wait locked",
-//	"fixed"
-//};
-
 typedef struct _LOADED_LIB {
 	HANDLE handle;
 	LPCSTR name;

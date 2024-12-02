@@ -3,6 +3,7 @@
 #include "../../Base/forward_list.h"
 #include "../../UI/ui.h"
 #include "./Commands/libctl/libctl.h"
+#include "./Commands/acserv/acserv.h"
 
 #include <stdio.h>
 
@@ -29,6 +30,7 @@ DWORD WINAPI ConsolePipe(LPVOID lpParam) {
 	ADD_COMMAND(wait, CommandWait);
 	ADD_COMMAND(shutdown, CommandShutdown);
 	ADD_COMMAND(libctl, CommandLibCtl);
+	ADD_COMMAND(acserv, CommandAcServ);
 
 	while (ConnectNamedPipe(hPipe, NULL)) {
 		printf("[ConsolePipe] Status: Connected admin\n");
@@ -80,18 +82,18 @@ DWORD WINAPI ConsolePipe(LPVOID lpParam) {
 }
 
 BOOL CommandStart(CONSOLE_PIPE cp, LPCSTR argv) {
-	ResumeThread(cp.as.hThread);
+	//ResumeThread(cp.as.hThread);
 	return TRUE;
 }
 
 BOOL CommandStop(CONSOLE_PIPE cp, LPCSTR argv) {
-	SuspendThread(cp.as.hThread);
+	//SuspendThread(cp.as.hThread);
 	return TRUE;
 }
 
 BOOL CommandExit(CONSOLE_PIPE cp, LPCSTR argv) {
 	// Memory lost (need fix)
-	TerminateThread(cp.as.hThread, NULL);
+	//TerminateThread(cp.as.hThread, NULL);
 	TerminateThread(cp.ds.hThread, NULL);
 	TerminateThread(cp.hThread, NULL);
 	return TRUE;

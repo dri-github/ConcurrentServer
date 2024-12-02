@@ -47,6 +47,39 @@ char* trimWord(char* text) {
 	return word;
 }
 
+char* trim(char* str) {
+	char* end;
+
+	while (isspace((unsigned char)*str)) str++;
+
+	if (*str == 0)
+		return str;
+
+	end = str + strlen(str) - 1;
+	while (end > str && isspace((unsigned char)*end)) end--;
+
+	*(end + 1) = '\0';
+
+	return str;
+}
+
+char* find_substr(const char* str, const char* substr) {
+	for (int i = 0; i < strlen(str); i++) {
+		if (str[i] == substr[0]) {
+			int j = 0;
+			size_t substr_length = strlen(substr);
+			for (; j < substr_length; j++) {
+				if (str[i + j] != substr[j])
+					break;
+			}
+
+			if (++j == substr) {
+				return str + i;
+			}
+		}
+	}
+}
+
 char* draw_table_line(char* text, const char** line, char_column* columns_width, size_t columns_count) {
 	size_t width = 0;
 	char buffer[64];

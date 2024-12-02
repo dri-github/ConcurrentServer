@@ -3,10 +3,6 @@
 #define DISPATCH_SERVER_EVENT_NAME "DispatchServer"
 
 DWORD WINAPI AcceptServer(LPVOID lpParam) {
-	WSADATA wsaData;
-	if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
-		return -1;
-
 	LPACCEPT_SERVER server = lpParam;
 	if ((server->s = socket(AF_INET, SOCK_STREAM, NULL)) == INVALID_SOCKET)
 		return -1;
@@ -21,12 +17,15 @@ DWORD WINAPI AcceptServer(LPVOID lpParam) {
 	if ((hAddConnection = OpenEventA(EVENT_ALL_ACCESS, FALSE, DISPATCH_SERVER_EVENT_NAME)) == NULL) {
 		return -1;
 	}
+	
+	LPCSTR ip = inet_ntoa(server->addr.sin_addr);
+	USHORT port = ntohs(server->addr.sin_port);
 
-	while (TRUE) {
-		printf("[AcceptServer] Status: Wait Connection\n");
+	while (server->state != ASERV_STATE_CLOSE) {
+		printf("[AcceptServer %s:%i] Status: Wait Connection\n", ip, port);
 		LPCONNECTION lpConnection;
 		if ((lpConnection = CreateConnection(server)) == NULL) {
-			printf("[AcceptServer] Error: CreateConnection\n");
+			printf("[AcceptServer %s:%i] Error: CreateConnection\n", ip, port);
 			continue;
 		}
 
@@ -34,17 +33,16 @@ DWORD WINAPI AcceptServer(LPVOID lpParam) {
 
 		EnterCriticalSection(server->cs);
 		if (ForwardListPushFront(server->connections, lpConnection)) {
-			printf("[AcceptServer] Status: Connected %s:%i\n", inet_ntoa(lpConnection->addr.sin_addr), ntohs(lpConnection->addr.sin_port));
+			printf("[AcceptServer %s:%i] Status: Connected %s:%i\n", ip, port, inet_ntoa(lpConnection->addr.sin_addr), ntohs(lpConnection->addr.sin_port));
 		}
 		LeaveCriticalSection(server->cs);
 
 		SetEvent(hAddConnection);
 	}
 
-	if (closesocket(server->s) == SOCKET_ERROR)
-		return -1;
+	printf("[AcceptServer %s:%i] Status: Close socket\n", ip, port);
 
-	if (WSACleanup() == SOCKET_ERROR)
+	if (closesocket(server->s) == SOCKET_ERROR)
 		return -1;
 
 	return 0;
@@ -71,4 +69,34 @@ LPCONNECTION CreateConnection(LPACCEPT_SERVER lpServer) {
 
 LPFORWARD_LIST_NODE GetConnectionsList(LPACCEPT_SERVER lpServer) {
 	return lpServer->connections;
+}
+
+BOOL OpenAcceptServer(LPACCEPT_SERVER lpServer) {
+	HANDLE hAcceptServer;
+	if ((hAcceptServer = CreateThread(NULL, NULL, AcceptServer, lpServer, NULL, NULL)) == NULL) {
+		return FALSE;
+	}
+	lpServer->hThread = hAcceptServer;
+	lpServer->state = ASERV_STATE_START;
+
+	return TRUE;
+}
+
+BOOL StartAcceptServer(LPACCEPT_SERVER lpServer) {
+	BOOL result = ResumeThread(lpServer->hThread);
+	lpServer->state = ASERV_STATE_START;
+
+	return result;
+}
+
+BOOL StopAcceptServer(LPACCEPT_SERVER lpServer) {
+	BOOL result = SuspendThread(lpServer->hThread);
+	lpServer->state = ASERV_STATE_STOP;
+
+	return result;
+}
+
+BOOL CloseAcceptServer(LPACCEPT_SERVER lpServer) {
+	lpServer->state = ASERV_STATE_CLOSE;
+	return TRUE;
 }

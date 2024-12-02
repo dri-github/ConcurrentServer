@@ -129,6 +129,8 @@
   <ItemGroup>
     <ClCompile Include="Base\unordered_map.c" />
     <ClCompile Include="connection.c" />
+    <ClCompile Include="Parsers\ini_parser.c" />
+    <ClCompile Include="Servers\ConsolePipe\Commands\acserv\acserv.c" />
     <ClCompile Include="Servers\ConsolePipe\Commands\libctl\libctl.c" />
     <ClCompile Include="Servers\DispatchServer\lib_loader.c" />
     <ClCompile Include="Servers\accept_server.c" />
@@ -142,6 +144,8 @@
   <ItemGroup>
     <ClInclude Include="Base\unordered_map.h" />
     <ClInclude Include="connection.h" />
+    <ClInclude Include="Parsers\ini_parser.h" />
+    <ClInclude Include="Servers\ConsolePipe\Commands\acserv\acserv.h" />
     <ClInclude Include="Servers\DispatchServer\lib_loader.h" />
     <ClInclude Include="Servers\accept_server.h" />
     <ClInclude Include="Servers\ConsolePipe\Commands\libctl\libctl.h" />
