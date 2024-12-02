@@ -2,8 +2,8 @@
 
 #include "./Base/forward_list.h"
 #include "./Servers/accept_server.h"
-#include "./Servers/dispatch_server.h"
-#include "./Servers/console_pipe.h"
+#include "./Servers/DispatchServer/dispatch_server.h"
+#include "./Servers/ConsolePipe/console_pipe.h"
 #include "./Servers/index_server.h"
 
 #define MESSAGE_SIZE 50

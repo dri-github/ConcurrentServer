@@ -17,18 +17,6 @@
 
 typedef DWORD (WINAPI *LPSERVICE_FUNCTION)(LPVOID lpParam);
 
-//#define LIB_STATE_LOADED 0b0000
-//#define LIB_STATE_LOCKED 0b0000
-//#define LIB_STATE_WAITLOCKED 0b0000
-//#define LIB_STATE_FIXED 0b0000
-//
-//typedef struct _LOADED_LIB {
-//	HANDLE handle;
-//	LPCSTR name;
-//	INT refCount;
-//	DWORD state;
-//} LOADED_LIB, *LPLOADED_LIB;
-
 typedef struct _DISPATCH_SERVER {
 	LPFORWARD_LIST_NODE connections;
     LPLIB_LOADER lpLibLoader;
@@ -38,10 +26,6 @@ typedef struct _DISPATCH_SERVER {
 } DISPATCH_SERVER, *LPDISPATCH_SERVER;
 
 DWORD WINAPI DispatchServer(LPVOID lpParam);
-HANDLE AddServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name);
-HANDLE FindServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name);
-HANDLE FindAndLoadServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name);
-VOID DeleteServiceLib(LPFORWARD_LIST_NODE lpLibList, LPCSTR name);
 
 /*
 #include <stdio.h>

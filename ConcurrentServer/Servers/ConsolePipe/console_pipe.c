@@ -2,6 +2,7 @@
 
 #include "../../Base/forward_list.h"
 #include "../../UI/ui.h"
+#include "./Commands/libctl/libctl.h"
 
 #include <stdio.h>
 
@@ -27,6 +28,7 @@ DWORD WINAPI ConsolePipe(LPVOID lpParam) {
 	ADD_COMMAND(statistics, CommandStatistics);
 	ADD_COMMAND(wait, CommandWait);
 	ADD_COMMAND(shutdown, CommandShutdown);
+	ADD_COMMAND(libctl, CommandLibCtl);
 
 	while (ConnectNamedPipe(hPipe, NULL)) {
 		printf("[ConsolePipe] Status: Connected admin\n");
@@ -38,21 +40,15 @@ DWORD WINAPI ConsolePipe(LPVOID lpParam) {
 				break;
 			}
 
-			LPSTR secondWord;
-			for (secondWord = buffer; secondWord < buffer + strlen(buffer); secondWord++) {
-				if (*secondWord == ' ') {
-					*(secondWord++) = '\0';
-					break;
-				}
-			}
+			LPSTR secondWord = trimWord(buffer);
+
+			memset(lpConsolePipe->output, 0, CONSOLE_PIPE_OUT_SIZE);
 
 			BOOL isExist = FALSE;
 			LPFORWARD_LIST_NODE it = commandsList;
 			while ((it = it->Next) != NULL) {
 				LPCOMMAND lpCommand = (LPCOMMAND)it->Data;
 				if (!strcmp(lpCommand->name, buffer)) {
-					memset(buffer, 0, sizeof(buffer));
-					memset(lpConsolePipe->output, 0, CONSOLE_PIPE_OUT_SIZE);
 					if (!lpCommand->func(*lpConsolePipe, secondWord)) {
 						strcat(buffer, "Error of execute command ");
 						strcat(buffer, lpCommand->name);
@@ -102,51 +98,76 @@ BOOL CommandExit(CONSOLE_PIPE cp, LPCSTR argv) {
 }
 
 BOOL CommandStatistics(CONSOLE_PIPE cp, LPCSTR argv) {
-	strcat(cp.output, "\nConnections list:\n");
+	char_column columns[5] = {
+		{ 4, ' ', TA_HORIZONTAL_CENTER },
+		{ 20, ' ', TA_HORIZONTAL_CENTER },
+		{ 18, ' ', TA_HORIZONTAL_CENTER },
+		{ 9, ' ', TA_HORIZONTAL_CENTER },
+		{ 21, ' ', TA_HORIZONTAL_CENTER }
+	};
 
-	SIZE_T iLength = 4;
-	SIZE_T sNameLength = 20;
-	SIZE_T ipLength = 21;
-	SIZE_T portLength = 8;
-	SIZE_T timeLength = 21;
+	LPCSTR** array = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 20 * sizeof(LPCSTR*));
+	for (int i = 0; i < 20; i++) {
+		array[i] = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 5 * sizeof(LPCSTR));
+		for (int j = 0; j < 5; j++) {
+			array[i][j] = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 30 * sizeof(CHAR));
+		}
+	}
+	
+#define SetColumn(id, name) memcpy(array[0][id], name, strlen(name) + 1)
+	SetColumn(0, "ID");
+	SetColumn(1, "Service");
+	SetColumn(2, "IP");
+	SetColumn(3, "Port");
+	SetColumn(4, "Time");
 
-	CHAR buf[512] = "ID";
-	strcat(cp.output, horizontal_align_text(buf, iLength, ' ', TA_HORIZONTAL_CENTER));
-	memcpy(buf, "Service", strlen("Service") + 1);
-	strcat(cp.output, horizontal_align_text(buf, sNameLength, ' ', TA_HORIZONTAL_CENTER));
-	memcpy(buf, "IP", strlen("IP") + 1);
-	strcat(cp.output, horizontal_align_text(buf, ipLength, ' ', TA_HORIZONTAL_CENTER));
-	memcpy(buf, "Port", strlen("Port") + 1);
-	strcat(cp.output, horizontal_align_text(buf, portLength, ' ', TA_HORIZONTAL_CENTER));
-	memcpy(buf, "Connect Time", strlen("Connect Time") + 1);
-	strcat(cp.output, horizontal_align_text(buf, timeLength, ' ', TA_HORIZONTAL_CENTER));
-
-	strcat(cp.output, "\n");
-	memset(buf, 205, iLength + sNameLength + ipLength + portLength + timeLength);
-	strcat(cp.output, buf);
-	strcat(cp.output, "\n");
+	char_table table;
+	table.columns_count = 5;
+	table.columns = columns;
+	table.array = array;
 
 	LPFORWARD_LIST_NODE it = cp.ds.connections;
-	INT i = 0;
-	while ((it = it->Next) != NULL) {
+	INT i = 1;
+	while ((it = it->Next) != NULL && i < 20) {
 		LPCONNECTION lpConnection = (LPCONNECTION)it->Data;
-		i++;
+		printf("%i\n", i);
 
-		CHAR buffer[512];
+		// ID
+		CHAR buffer[64];
 		memset(buffer, 0, sizeof(buffer));
-		strcat(cp.output, horizontal_align_text(itoa(i, buffer, 10), iLength, ' ', TA_HORIZONTAL_CENTER));
-		CHAR sNameBuf[60];
-		memcpy(sNameBuf, lpConnection->sName, strlen(lpConnection->sName) + 1);
-		strcat(cp.output, horizontal_align_text(sNameBuf, sNameLength, ' ', TA_HORIZONTAL_CENTER));
-		strcat(cp.output, horizontal_align_text(inet_ntoa(lpConnection->addr.sin_addr), ipLength, ' ', TA_HORIZONTAL_CENTER));
-		strcat(cp.output, horizontal_align_text(itoa(ntohs(lpConnection->addr.sin_port), buffer, 10), portLength, ' ', TA_HORIZONTAL_CENTER));
+		itoa(i, buffer, 10);
+		memcpy(array[i][0], buffer, strlen(buffer) + 1);
 
+		// Service Name
+		memcpy(array[i][1], lpConnection->sName, strlen(lpConnection->sName) + 1);
+
+		// IP
+		CHAR* ipText = inet_ntoa(lpConnection->addr.sin_addr);
+		memcpy(array[i][2], ipText, strlen(ipText) + 1);
+
+		// Port
+		memset(buffer, 0, sizeof(buffer));
+		itoa(ntohs(lpConnection->addr.sin_port), buffer, 10);
+		memcpy(array[i][3], buffer, strlen(buffer) + 1);
+
+		// Time
 		memset(buffer, 0, sizeof(buffer));
 		strftime(buffer, sizeof(buffer), "%d.%m.%y/%H:%M:%S", localtime(&lpConnection->tStart));
-		printf("%s", buffer);
-		strcat(cp.output, horizontal_align_text(buffer, timeLength, ' ', TA_HORIZONTAL_CENTER));
-		strcat(cp.output, "\n");
+		memcpy(array[i][4], buffer, strlen(buffer) + 1);
+
+		i++;
 	}
+	table.lines_count = i;
+
+	draw_table(table, cp.output);
+
+	for (int i = 0; i < 20; i++) {
+		//for (int j = 0; j < 5; j++) {
+			//HeapFree(GetProcessHeap(), 0, array[i][j]);
+		//}
+		HeapFree(GetProcessHeap(), 0, array[i]);
+	}
+	HeapFree(GetProcessHeap(), 0, array);
 
 	return TRUE;
 }
@@ -174,29 +195,5 @@ BOOL CommandShutdown(CONSOLE_PIPE cp, LPCSTR argv) {
 	CommandWait(cp, argv);
 	CommandExit(cp, argv);
 
-	return TRUE;
-}
-
-BOOL CommandLibset(CONSOLE_PIPE cp, LPCSTR argv) {
-	DISPATCH_SERVER ds = cp.ds;
-
-	LPSTR command = argv;
-	//LPSTR libName = trimWord(command);
-
-	if (!strcmp(command, "ps")) {
-
-	}
-	else if (!strcmp(command, "lock")) {
-
-	}
-	else if (!strcmp(command, "unlock")) {
-
-	}
-	else if (!strcmp(command, "fixed")) {
-
-	}
-	else {
-		return FALSE;
-	}
 	return TRUE;
 }

@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Base\unordered_map.c" />
     <ClCompile Include="connection.c" />
+    <ClCompile Include="Servers\ConsolePipe\Commands\libctl\libctl.c" />
     <ClCompile Include="Servers\DispatchServer\lib_loader.c" />
     <ClCompile Include="Servers\accept_server.c" />
     <ClCompile Include="Servers\ConsolePipe\console_pipe.c" />

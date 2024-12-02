@@ -25,20 +25,5 @@ BOOL CommandExit(CONSOLE_PIPE cp, LPCSTR argv);
 BOOL CommandStatistics(CONSOLE_PIPE cp, LPCSTR argv);
 BOOL CommandWait(CONSOLE_PIPE cp, LPCSTR argv);
 BOOL CommandShutdown(CONSOLE_PIPE cp, LPCSTR argv);
-BOOL CommandLibset(CONSOLE_PIPE cp, LPCSTR argv);
-
-//char* trimWord(const char* text) {
-//	size_t length = strlen(text);
-//
-//	char* word = text;
-//	for (word = text; word < word + length; word++) {
-//		if (*word == ' ') {
-//			*(word++) = '\0';
-//			break;
-//		}
-//	}
-//
-//	return word;
-//}
 
 #endif // !CONSOLE_PIPE_H

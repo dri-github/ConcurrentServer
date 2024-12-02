@@ -45,6 +45,9 @@
     <ClCompile Include="Servers\DispatchServer\lib_loader.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Servers\ConsolePipe\Commands\libctl\libctl.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\forward_list.h">

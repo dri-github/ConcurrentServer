@@ -13,7 +13,7 @@ HANDLE LibLoaderLoad(LPLIB_LOADER lpLdr, LPCSTR libName) {
 
 	lpLib->handle = hLib;
 	lpLib->name = libName;
-	lpLib->refCount = 0;
+	lpLib->refCount = 1;
 	lpLib->state = LIB_STATE_LOADED;
 
 	ForwardListPushFront(lpLdr->lpLibs, lpLib);
@@ -25,6 +25,7 @@ HANDLE LibLoaderGet(LPLIB_LOADER lpLdr, LPCSTR libName) {
 	if ((lpLib = LibLoaderFind(lpLdr, libName)) != NULL) {
 		if (lpLib->state == LIB_STATE_LOCKED || lpLib->state == LIB_STATE_WAITLOCKED)
 			return NULL;
+		lpLib->refCount++;
 		return lpLib->handle;
 	}
 
@@ -44,6 +45,9 @@ LPLOADED_LIB LibLoaderFind(LPLIB_LOADER lpLdr, LPCSTR libName) {
 }
 
 BOOL LibLoaderSetState(LPLIB_LOADER lpLdr, LPCSTR libName, DWORD state) {
+	if (state > LIB_STATE_FIXED || state < 0)
+		return FALSE;
+
 	LPLOADED_LIB lpLib;
 	if ((lpLib = LibLoaderFind(lpLdr, libName)) != NULL) {
 		
@@ -79,13 +83,23 @@ BOOL LibLoaderSetState(LPLIB_LOADER lpLdr, LPCSTR libName, DWORD state) {
 		}
 		break;
 	case LIB_STATE_LOCKED:
+		lpLib->refCount = 0;
 		if (lpLib->handle != NULL) {
 			FreeLibrary(lpLib->handle);
 			lpLib->handle = NULL;
 		}
 		break;
 	case LIB_STATE_WAITLOCKED:
+		if (lpLib->refCount == 0) {
+			if (lpLib->handle != NULL) {
+				FreeLibrary(lpLib->handle);
+				lpLib->handle = NULL;
+			}
+			state = LIB_STATE_LOCKED;
+		}
 		break;
+	default:
+		return FALSE;
 	}
 
 	lpLib->state = state;
@@ -117,8 +131,11 @@ BOOL LibloaderUnload(LPLIB_LOADER lpLdr, LPCSTR libName) {
 				break;
 			case LIB_STATE_WAITLOCKED:
 				if (lpLib->refCount == 0) {
-					FreeLibrary(lpLib->handle);
-					lpLib->handle = NULL;
+					if (lpLib->handle != NULL) {
+						FreeLibrary(lpLib->handle);
+						lpLib->handle = NULL;
+					}
+					lpLib->state = LIB_STATE_LOCKED;
 
 					return TRUE;
 				}

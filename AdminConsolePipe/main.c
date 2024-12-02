@@ -27,10 +27,18 @@ int main(int argc, char* argv[]) {
 		}
 
 		printf("Connected to the server\n");
+		getchar();
 		while (TRUE) {
 			CHAR buffer[100];
 			printf("Command: ");
-			scanf("%s", buffer);
+			fgets(buffer, sizeof(buffer), stdin);
+
+			for (char* it = buffer - 1; (*it) != '\0'; it++) {
+				if ((*it) == '\n') {
+					(*it) = '\0';
+					break;
+				}
+			}
 
 			DWORD write_size = 0;
 			if (!WriteFile(hPipe, buffer, sizeof(buffer), &write_size, NULL)) {

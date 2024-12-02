@@ -24,11 +24,58 @@ char* horizontal_align_text(char* text, size_t length, int background, int align
 
 		memcpy(start + padding, text, conetnt_length);
 		memset(start, background, padding);
-		memset(start + padding + conetnt_length, background, padding);
+		memset(start + padding + conetnt_length, background, padding + ((length - conetnt_length) & 1));
 		break;
 	}
 	}
 
 	text[length] = '\0';
+	return text;
+}
+
+char* trimWord(char* text) {
+	size_t length = strlen(text);
+
+	char* word = text;
+	for (word = text; word < word + length; word++) {
+		if (*word == ' ' || *word == '\0') {
+			*(word++) = '\0';
+			break;
+		}
+	}
+
+	return word;
+}
+
+char* draw_table_line(char* text, const char** line, char_column* columns_width, size_t columns_count) {
+	size_t width = 0;
+	char buffer[64];
+
+	for (size_t i = 0; i < columns_count; i++) {
+		char_column column = columns_width[i];
+
+		memcpy(buffer, line[i], strlen(line[i]) + 1);
+		strcat(text, horizontal_align_text(buffer, column.width, column.background, column.align));
+		width += column.width;
+	}
+	*(text += width) = '\n';
+
+	return ++text;
+}
+
+char* draw_table(char_table table, char* text) {
+	char* base_text = text;
+	text = draw_table_line(text, table.array[0], table.columns, table.columns_count);
+	size_t width = (text - 1) - base_text;
+
+	memset(text, 205, width);
+	*(text += width) = '\n';
+	text++;
+
+	for (size_t i = 1; i < table.lines_count; i++) {
+		text = draw_table_line(text, table.array[i], table.columns, table.columns_count);
+	}
+	*(++text) = '\0';
+
 	return text;
 }
