@@ -7,6 +7,11 @@ DWORD WINAPI AcceptServer(LPVOID lpParam) {
 	if ((server->s = socket(AF_INET, SOCK_STREAM, NULL)) == INVALID_SOCKET)
 		return -1;
 
+	//u_long nonblk = 1;
+	//if (ioctlsocket(server->s, FIONBIO, &nonblk) == SOCKET_ERROR)
+	//	return -1;
+
+
 	if (bind(server->s, (LPSOCKADDR)&server->addr, sizeof(server->addr)) == SOCKET_ERROR)
 		return -1;
 

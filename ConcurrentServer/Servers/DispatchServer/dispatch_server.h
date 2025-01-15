@@ -27,19 +27,4 @@ typedef struct _DISPATCH_SERVER {
 
 DWORD WINAPI DispatchServer(LPVOID lpParam);
 
-/*
-
-
-// Пример использования
-int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        fprintf(stderr, "Использование: %s <ini-файл>\n", argv[0]);
-        return 1;
-    }
-
-    parse_ini(argv[1]);
-    return 0;
-}
-*/
-
 #endif // !DISPATCH_SERVER_H

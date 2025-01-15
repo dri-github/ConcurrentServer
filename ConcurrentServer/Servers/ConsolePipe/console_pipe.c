@@ -180,7 +180,8 @@ BOOL CommandWait(CONSOLE_PIPE cp, LPCSTR argv) {
 		return FALSE;
 	}
 
-	CommandStop(cp, argv);
+	//CommandStop(cp, argv);
+	SetAllAcServ(cp.ass, ASERV_STATE_STOP);
 
 	while (cp.ds.connections->Next != NULL) {
 		DWORD dwWaitResult;
@@ -188,7 +189,8 @@ BOOL CommandWait(CONSOLE_PIPE cp, LPCSTR argv) {
 		Sleep(1000);
 	}
 
-	CommandStart(cp, argv);
+	SetAllAcServ(cp.ass, ASERV_STATE_START);
+	//CommandStart(cp, argv);
 
 	return TRUE;
 }
